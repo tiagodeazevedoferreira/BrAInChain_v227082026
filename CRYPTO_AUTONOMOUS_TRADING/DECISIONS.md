@@ -67,3 +67,19 @@ Training → validation → backtest → approval → deployment → monitoring 
 ## D-011 — Existing BrAInChain architecture must be inspected before implementation
 
 **Decision:** Do not assume the proposed technology stack or directory structure is compatible with the current repository. First inspect the repository and reuse existing infrastructure whenever appropriate.
+
+## D-012 — Security provider evidence is advisory, but the gate is deterministic
+
+**Decision:** Security providers such as Honeypot.is and optional GoPlus are evidence sources. They do not constitute a formal smart-contract audit and must not be treated as infallible.
+
+**Rule:** The local security engine combines provider evidence with deterministic hard gates. Unknown/unsupported critical security state results in `DO_NOT_TRADE` rather than an optimistic assumption.
+
+## D-013 — Security analysis is incremental
+
+**Decision:** The security runner processes only discovery tokens that do not yet have a security record.
+
+**Reason:** Avoid repeatedly consuming provider capacity for unchanged tokens and allow newly discovered tokens to enter the security pipeline continuously.
+
+## D-014 — Liquidity lock is never inferred
+
+**Decision:** If no reliable evidence of a liquidity lock/locker is available, the state remains `unknown` and contributes risk. The engine never converts absence of evidence into proof of safety.
