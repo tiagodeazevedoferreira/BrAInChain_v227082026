@@ -68,6 +68,33 @@ Criado `crypto_security/` com:
 - `security/status` com contagens de risco;
 - processamento incremental de tokens ainda não analisados.
 
+### Correções após CI
+Os primeiros quatro commits relacionados à Fase 2 apresentaram falhas no GitHub Actions.
+
+Causa 1: o job de testes executava `pytest` a partir da raiz do repositório e acabava coletando também os testes de `crypto_discovery`, sem instalar o pacote `discovery` nesse job. Isso causou `ModuleNotFoundError: No module named 'discovery'`.
+
+Correção: o job de Security Intelligence passou a usar `working-directory: crypto_security` e `python -m pytest -q` apenas sobre os testes da Fase 2.
+
+Causa 2: os testes de scoring criavam `SecurityAnalysis` somente com `network`, `token_address` e alguns campos opcionais, enquanto `pool_address`, `symbol` e `name` eram obrigatórios no dataclass.
+
+Correção: esses metadados passaram a ter default `None`, mantendo `network` e `token_address` como campos obrigatórios.
+
+### Validação automatizada final
+Workflow run **#8** (`33116891066`) terminou com sucesso nos dois jobs:
+- `test` → `success`;
+- `security-scan` → `success`.
+
+Resultado operacional do Security Engine:
+- `SECURITY_INPUT=25`;
+- `SECURITY_ANALYZED=25`;
+- `SECURITY_DO_NOT_TRADE=25`;
+- `SECURITY_CRITICAL=0`;
+- `SECURITY_PIPELINE=OK`.
+
+A credencial Firebase foi criada temporariamente no runner e removida com sucesso ao final.
+
+O resultado `DO_NOT_TRADE=25` não significa que os 25 tokens foram classificados como honeypots. Significa que, com as regras conservadoras atuais, todos permaneceram bloqueados para negociação. Isso é esperado para esta fase, pois segurança desconhecida, liquidez/lock insuficientemente comprovados ou risco acima do limiar impedem execução.
+
 ### Testes criados
 - `crypto_security/tests/test_scoring.py`
 - `crypto_security/tests/test_engine.py`
@@ -75,17 +102,14 @@ Criado `crypto_security/` com:
 Os testes cobrem hard block de honeypot, comportamento fail-safe para estado desconhecido, concentração e integração do engine com providers simulados.
 
 ### Automação
-Criado `.github/workflows/crypto-security.yml` com:
+`.github/workflows/crypto-security.yml` possui:
 - `workflow_dispatch`;
 - execução a cada 10 minutos;
 - execução em alterações do módulo/documentação;
-- job de testes;
+- job de testes isolado da Fase 2;
 - job de security scan dependente dos testes;
 - credencial Firebase temporária e removida no final;
 - limite de 25 tokens por ciclo para controlar consumo de provedores.
-
-### Resultado e validação
-A implementação e os testes foram adicionados ao repositório. A execução operacional contra os tokens atuais do Firebase depende do disparo do workflow no GitHub; a ferramenta disponível nesta sessão não oferece a operação de `workflow_dispatch`. O workflow também possui gatilho automático e será executado pelo GitHub.
 
 ### Limitações conhecidas
 - Liquidity lock/removal permanece `unknown` sem evidência confiável de locker.
