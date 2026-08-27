@@ -10,7 +10,7 @@ on:
       pages:
         description: "GeckoTerminal new-pool pages to scan"
         required: false
-        default: "1"
+        default: "10"
   schedule:
     - cron: "*/10 * * * *"
 
@@ -47,7 +47,7 @@ jobs:
       - name: Live discovery smoke test
         working-directory: crypto_discovery
         env:
-          DISCOVERY_PAGES: ${{ inputs.pages || '1' }}
+          DISCOVERY_PAGES: ${{ inputs.pages || '10' }}
         run: python -m discovery.main --pages "$DISCOVERY_PAGES"
 
   persist:
@@ -83,7 +83,7 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT_FILE: ${{ runner.temp }}/firebase-service-account.json
           FIREBASE_DATABASE_URL: https://brainchainv227082026-default-rtdb.firebaseio.com
-          DISCOVERY_PAGES: ${{ inputs.pages || '1' }}
+          DISCOVERY_PAGES: ${{ inputs.pages || '10' }}
         run: python -m discovery.main --pages "$DISCOVERY_PAGES" --firebase
 
       - name: Remove temporary Firebase credential
