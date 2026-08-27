@@ -66,7 +66,7 @@ São tecnologias candidatas. Antes de introduzir qualquer uma, analisar e reapro
 
 ### Fase 1 — Discovery
 
-Implementado em `crypto_discovery/`: GeckoTerminal + DEX Screener, normalização, deduplicação, tolerância a falhas, Firebase e GitHub Actions a cada 10 minutos.
+Implementado em `crypto_discovery/`: GeckoTerminal + DEX Screener, normalização, deduplicação, tolerância a falhas, Firebase e GitHub Actions a cada 10 minutos. A Fase 1 foi validada pelo usuário em execução real.
 
 ### Fase 2 — Security Intelligence
 
@@ -76,7 +76,7 @@ Implementado em `crypto_security/`:
 - Honeypot.is simulation/honeypot checks;
 - buy/sell/transfer tax analysis;
 - simulation success/failure;
-- holder sell failures and siphoning;
+- holder sell failures e siphoning;
 - contract source/open-source verification;
 - proxy/proxy-call detection;
 - top-holder/top-5 concentration;
@@ -87,15 +87,29 @@ Implementado em `crypto_security/`:
 - Firebase persistence em `security/tokens/*`;
 - incremental runner que processa tokens ainda não analisados;
 - unit e integration tests;
-- GitHub Actions a cada 10 minutos e em alterações do módulo/documentação.
+- GitHub Actions periódico e por alteração do módulo.
 
-A documentação dos provedores indica que Honeypot.is fornece simulação de compra/venda, taxes, holder analysis, contract code e top holders; GoPlus fornece Token Security API para dados adicionais de risco. Esses serviços são evidências de segurança, não auditorias formais. citeturn1search0turn2search0turn2search3turn0search10
+### Fase 2 — Correções de CI e validação
 
-### Validação
+Os primeiros commits da Fase 2 falharam por dois problemas reais de integração:
 
-A Fase 1 foi validada pelo usuário em execução real.
+1. o job de testes coletava indevidamente os testes de `crypto_discovery`, pois executava pytest na raiz;
+2. `SecurityAnalysis` exigia metadados opcionais nos testes de scoring.
 
-Para a Fase 2, os testes unitários e de integração estão codificados e o workflow está preparado para validação automática. A ferramenta atual não fornece despacho manual de workflow, portanto a execução operacional da Fase 2 será confirmada pelo GitHub Actions no próximo disparo automático ou por `workflow_dispatch` no GitHub, caso necessário.
+Ambos foram corrigidos. O workflow passou a isolar o teste em `crypto_security`, e os metadados opcionais passaram a ter default `None`.
+
+O workflow run **#8 / 33116891066** foi validado com:
+- `test` → `success`;
+- `security-scan` → `success`;
+- `SECURITY_INPUT=25`;
+- `SECURITY_ANALYZED=25`;
+- `SECURITY_DO_NOT_TRADE=25`;
+- `SECURITY_CRITICAL=0`;
+- `SECURITY_PIPELINE=OK`.
+
+A credencial Firebase foi criada temporariamente no runner e removida com sucesso. O resultado `DO_NOT_TRADE=25` não significa que 25 honeypots foram encontrados; significa que todos os 25 permaneceram bloqueados pelas regras conservadoras atuais.
+
+O workflow também foi corrigido para que commits somente de `CRYPTO_AUTONOMOUS_TRADING/**` não disparem desnecessariamente uma nova análise de segurança. O scan continua sendo acionado por alterações em `crypto_security/**`, no próprio workflow, por agenda ou manualmente.
 
 ## SEGURANÇA
 
@@ -148,7 +162,7 @@ A intenção inicial é uma posição configurável de US$0,01. Se o valor for i
 
 FASE 0 — Contexto e arquitetura — CONCLUÍDA
 FASE 1 — Discovery e coleta — CONCLUÍDA
-FASE 2 — Security Intelligence — IMPLEMENTADA / EM VALIDAÇÃO OPERACIONAL
+FASE 2 — Security Intelligence — CONCLUÍDA E VALIDADA
 FASE 3 — Market/On-chain Intelligence — PRÓXIMA
 FASE 4 — Dataset e ML
 FASE 5 — Backtesting
