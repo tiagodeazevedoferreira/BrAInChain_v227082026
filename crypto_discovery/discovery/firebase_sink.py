@@ -30,16 +30,20 @@ class FirebaseDiscoverySink:
             )
 
         pool_list = list(pools)
-        payload = {
-            "last_run_at": datetime.now(timezone.utc).isoformat(),
-            "pool_count": len(pool_list),
-            "source_errors": errors,
-        }
+        now = datetime.now(timezone.utc).isoformat()
+        updates = {}
 
         for pool in pool_list:
             key = f"{pool.network}:{pool.base_token_address or 'unknown'}:{pool.pool_address or 'unknown'}"
             key = key.replace("/", "_")
-            db.reference(f"discovery/tokens/{key}", app=app).set(pool.to_dict())
+            updates[f"discovery/tokens/{key}"] = pool.to_dict()
 
-        db.reference("discovery/status", app=app).set(payload)
-        return payload
+        updates["discovery/status"] = {
+            "last_run_at": now,
+            "pool_count": len(pool_list),
+            "source_errors": errors,
+        }
+
+        # One multi-location update avoids hundreds of sequential HTTP writes.
+        db.reference("/", app=app).update(updates)
+        return updates["discovery/status"]
