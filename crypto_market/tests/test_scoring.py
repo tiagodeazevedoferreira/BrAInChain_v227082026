@@ -28,7 +28,7 @@ def test_trade_scoring_is_conservative_when_data_is_missing():
     assert "TRADE_DATA_UNAVAILABLE" in flags
 
 
-def test_trade_scoring_uses_wallet_and_volume_signals():
+def test_trade_scoring_detects_concentration_and_net_buying():
     trades = [
         TradeObservation(1, "buy", 1000, 1, "A", "tx1"),
         TradeObservation(2, "buy", 500, 1.1, "B", "tx2"),
@@ -39,5 +39,6 @@ def test_trade_scoring_uses_wallet_and_volume_signals():
     assert buy == 1500
     assert sell == 100
     assert smart > 50
-    assert whale > 50
+    assert whale < 50  # lower score means higher single-trade concentration risk
+    assert "SINGLE_TRADE_CONCENTRATION" in flags
     assert features["trade_net_buy_ratio"] > 0
