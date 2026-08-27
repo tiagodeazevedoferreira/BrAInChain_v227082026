@@ -43,8 +43,8 @@ def _first(mapping: dict[str, Any], *keys):
 
 
 def _period(mapping: dict[str, Any], period: str, field: str):
-    obj = mapping.get(field) or {}
-    return _first(obj, period)
+    obj = mapping.get(period) or {}
+    return _first(obj, field)
 
 
 class DexScreenerMarketProvider(MarketProvider):
