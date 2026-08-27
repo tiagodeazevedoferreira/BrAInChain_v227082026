@@ -2,18 +2,20 @@
 
 ## Architectural principle
 
-Event-driven, modular, adapter-based architecture. Data ingestion, intelligence, dataset/ML, decisioning, paper execution and future live execution remain separable.
+Event-driven, modular, adapter-based architecture. Discovery, security, market intelligence, dataset/ML, backtesting, paper execution, exit intelligence and future live execution remain separable.
 
 ## Current implementation status
 
 - Discovery: `crypto_discovery/` — implemented and validated.
-- Security: `crypto_security/` — implemented and operationally validated.
-- Market/on-chain: `crypto_market/` — implemented with bounded current-state persistence.
-- Dataset/ML foundation: `crypto_ml/` — implemented and CI validated.
+- Security: `crypto_security/` — implemented and validated.
+- Market/on-chain: `crypto_market/` — implemented and validated.
+- Dataset/ML: `crypto_ml/` — implemented and CI validated.
 - Backtesting: `crypto_backtest/` — implemented and CI validated.
-- Paper trading: `crypto_paper/` — implemented; operational CI validation pending.
-- Firebase: operational state only; never an unbounded historical ML/trading store.
-- Live execution: intentionally not implemented or enabled.
+- Paper trading: `crypto_paper/` — implemented and CI validated.
+- Exit intelligence: `crypto_exit/` — implemented and CI validated.
+- Restricted live boundary: `crypto_live/` — implemented; CI validation pending.
+- Firebase: operational state only; never an unbounded historical store.
+- Actual live order transport: intentionally absent.
 
 ## Logical pipeline
 
@@ -57,53 +59,52 @@ Exit Intelligence
 Trade Outcomes
       |
       v
-Learning / MLOps
+Restricted Live Safety Gate
+      |
+      +--> BLOCKED until evidence + authorization + approved venue adapter
       |
       v
-[future] Restricted Live Execution
+[future] Approved Venue Adapter
+      |
+      v
+Live Micro Execution
 ```
 
-## Phase 6 — Paper Trading
+## Phase 8 — Restricted Live Safety Boundary
 
-`crypto_paper/` is simulation-only and deliberately contains no wallet signer, RPC transaction sender, DEX router or exchange credentials.
+`crypto_live/` exists to prevent configuration mistakes from becoming real-money transactions.
 
-Implemented components:
+Components:
+- `LiveConfig`: explicit live mode, enablement, authorization and quantitative risk limits;
+- `Evidence`: required validation evidence contract;
+- `preflight`: independent fail-closed gate;
+- `LiveExecutor`: safety boundary that currently rejects all real orders because no approved venue adapter exists;
+- `.github/workflows/crypto-live.yml`: automated safety tests.
 
-- `PaperSignal` contract;
-- configurable US$0.01 target position;
-- simulated buy fill with fee and slippage;
-- simulated close with fee and slippage;
-- position ledger outside Firebase;
-- realized and unrealized PnL;
-- max-open-position and max-exposure gates;
-- daily-loss circuit breaker;
-- consecutive-loss circuit breaker;
-- security gate precedence;
-- liquidity and opportunity-score gates;
-- operational event logging;
-- monitoring snapshot;
-- unit tests and GitHub Actions.
+### Required gates
 
-## Safety boundaries
+All must pass before a venue adapter can even be considered:
 
-- Paper mode is the only supported execution mode in Phase 6.
-- A `DO_NOT_TRADE` security state cannot be overridden by opportunity score.
-- Position target is an experiment, not a promise that a venue can execute US$0.01.
-- Insufficient cash, liquidity, exposure or circuit-breaker conditions reject the signal.
-- Firebase receives no unbounded paper-trade history.
-- Live execution requires a later explicit authorization gate and is not part of Phase 6.
+1. satisfactory empirical backtesting;
+2. out-of-sample validation;
+3. sustained paper-trading evidence;
+4. security tests;
+5. failure-mode tests;
+6. secure signing/secret handling;
+7. configured position/exposure/gas/slippage/loss limits;
+8. explicit owner authorization;
+9. separately reviewed venue adapter.
 
-## ML and backtesting safety
+CI success is not profitability evidence and is not trading authorization.
 
-- Future observations create labels but never decision-time features.
-- Historical data remains outside Firebase.
-- Production model promotion requires temporal validation, out-of-sample evidence, calibration, stability and economic backtesting.
-- Paper results are evidence, not proof of future profitability.
+## Storage
+
+Firebase RTDB is restricted to current operational state and bounded aggregates. Historical ML, backtesting and trade-outcome data remain outside Firebase with retention and growth controls.
 
 ## Security boundaries
 
-Private keys and signing material must never be stored in source code, normal logs or unencrypted configuration. Live execution must have explicit owner authorization, independent risk gates and circuit breakers.
+Private keys and signing material must never be stored in source code, normal logs or unencrypted configuration. The default on stale data, uncertain contract state, excessive slippage, abnormal liquidity, provider instability or execution uncertainty is `DO_NOT_TRADE`.
 
-## Failure philosophy
+## ML/backtesting safety
 
-The default for stale data, uncertain contract state, abnormal liquidity, excessive slippage, provider instability, execution uncertainty or security uncertainty is `DO_NOT_TRADE`.
+Future observations may create labels but never decision-time features. Production promotion requires temporal validation, out-of-sample evidence, calibration, stability and economic backtesting. Paper results are evidence, not proof of future profitability.
