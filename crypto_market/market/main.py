@@ -28,17 +28,23 @@ def main():
         )
 
     tokens = db.reference("/discovery/tokens", app=app).get() or {}
+    security = db.reference("/security/tokens", app=app).get() or {}
+    # Process newest discovery observations first; do not create historical copies.
+    ordered = sorted(tokens.values(), key=lambda x: x.get("discovered_at", ""), reverse=True)
+
     engine = IntelligenceEngine(DexScreenerMarketProvider(), GeckoTerminalTradeProvider())
     analyses = []
     errors = []
-    for item in list(tokens.values())[: max(0, args.max_tokens)]:
+    for item in ordered[: max(0, args.max_tokens)]:
         network = item.get("network")
         token = item.get("base_token_address")
         pool = item.get("pool_address")
         if not network or not token or not pool:
             continue
+        key_prefix = f"{network}:{token}:{pool}".replace("/", "_")
+        sec = security.get(key_prefix) or {}
         try:
-            analyses.append(engine.analyze(network, token, pool))
+            analyses.append(engine.analyze(network, token, pool, sec.get("trade_gate")))
         except Exception as exc:
             errors.append({"token": token, "error": str(exc)})
 
