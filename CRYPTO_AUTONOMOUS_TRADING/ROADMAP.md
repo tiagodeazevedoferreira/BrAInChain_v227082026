@@ -2,7 +2,7 @@
 
 ## Status
 
-**Fase 2 concluída em implementação e validação operacional; próxima: Fase 3 — Market & On-chain Intelligence.**
+**Fase 3 implementada; validação operacional do workflow em andamento. Próxima: Fase 4 — Dataset & Machine Learning.**
 
 ## Regra de governança do projeto
 
@@ -38,47 +38,43 @@ O agente possui autonomia para decidir e implementar as soluções técnicas, te
 - [x] Deterministic Scam/Rug Pull Risk Score
 - [x] Hard security gate `DO_NOT_TRADE`
 - [x] Firebase persistence em `security/tokens/*`
-- [x] Incremental processing: somente tokens ainda não analisados
+- [x] Incremental processing
+- [x] Unit/integration tests
+- [x] GitHub Actions automático
+- [x] Firebase credential cleanup
+- [x] CI isolation/default fixes
+- [x] Operational validation
+
+## Fase 3 — Market & On-chain Intelligence — IMPLEMENTADA
+- [x] Price/volume observation
+- [x] Buy/sell transaction pressure
+- [x] Momentum and price-acceleration proxies
+- [x] Liquidity and liquidity-turnover metrics
+- [x] Trade-level wallet activity when provider exposes trader addresses
+- [x] Whale concentration proxy using largest trade share
+- [x] Smart-money behavior proxy using net-buy pressure
+- [x] Pump/manipulation heuristics
+- [x] Provider failure isolation
+- [x] Fail-closed decision behavior
+- [x] Bounded Firebase latest-state persistence
 - [x] Unit tests
-- [x] Engine integration tests
-- [x] GitHub Actions automático a cada 10 minutos
-- [x] Firebase credential cleanup no runner
-- [x] Correção de isolamento do pytest no CI
-- [x] Correção dos defaults de `SecurityAnalysis`
-- [x] Validação operacional de workflow
+- [x] Engine tests
+- [x] GitHub Actions every 10 minutes + manual dispatch
 
-### Evidência de validação da Fase 2
-Workflow run **#8 / 33116891066**:
-- `test` → success;
-- `security-scan` → success;
-- `SECURITY_INPUT=25`;
-- `SECURITY_ANALYZED=25`;
-- `SECURITY_DO_NOT_TRADE=25`;
-- `SECURITY_CRITICAL=0`;
-- `SECURITY_PIPELINE=OK`.
+### Fase 3 — Limitações deliberadas
+- Holder growth is `null` until a bounded baseline or external historical dataset exists. A single point-in-time holder count cannot establish growth.
+- Smart-money is a proxy, not wallet-profitability intelligence. Full smart-money scoring requires wallet history and outcome labels.
+- Whale detection is trade-concentration based and complements, rather than replaces, security holder concentration.
+- Firebase is not used for historical snapshots.
 
-Os 25 tokens foram bloqueados para negociação pelas regras conservadoras atuais; isso não significa que todos sejam honeypots. O sistema está deliberadamente em modo fail-safe.
-
-### Fase 2 — limitações conhecidas
-- Liquidity lock/removal permanece `unknown` quando não há evidência confiável de locker; o sistema não presume segurança.
-- GoPlus é opcional e só é consultado quando `GOPLUS_ACCESS_TOKEN` está configurado.
-- Honeypot/security providers não são auditoria formal de smart contract e podem ter cobertura/latência diferentes por chain.
-- Tokens em chains não suportadas ficam bloqueados (`DO_NOT_TRADE`).
-- Nenhum mecanismo de segurança é considerado infalível.
-
-## Fase 3 — Market & On-chain Intelligence — PRÓXIMA
-- [ ] Price/volume snapshots
-- [ ] Holder growth
-- [ ] Buy/sell pressure
-- [ ] Wallet activity
-- [ ] Whale detection
-- [ ] Smart Money scoring
-- [ ] Momentum/volatility/liquidity metrics
-- [ ] Pump/manipulation detection
+### Fase 3 — Evidência CI
+Workflow `Crypto Market & On-chain Intelligence` foi criado e o primeiro run identificou uma expectativa incorreta no teste de concentração de whale; a falha foi corrigida no commit seguinte. A execução corretiva está sendo validada antes de marcar a fase como operacionalmente concluída.
 
 ## Fase 4 — Dataset & Machine Learning
 - [ ] Historical dataset builder
+- [ ] Storage strategy for historical data (Parquet/object storage/DuckDB or equivalent)
 - [ ] Winner/loser/scam/rug-pull labels
+- [ ] Multi-horizon labels (+10/+25/+50/+100/+500/+1000%, crash/rug)
 - [ ] Time-aware feature engineering
 - [ ] Baseline models
 - [ ] Ensemble comparison
