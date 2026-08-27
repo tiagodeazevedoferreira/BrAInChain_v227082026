@@ -2,7 +2,15 @@
 
 ## Architectural principle
 
-Event-driven, modular, adapter-based architecture. Data ingestion, intelligence, ML, decisioning and execution must remain separable.
+Event-driven, modular, adapter-based architecture. Data ingestion, intelligence, ML, decisioning and execution remain separable.
+
+## Current implementation status
+
+- Discovery layer: implemented in `crypto_discovery/`.
+- Security layer: implemented in `crypto_security/`.
+- Firebase persistence: implemented for discovery and security.
+- GitHub Actions: discovery and security automation.
+- ML/execution: not implemented yet.
 
 ## Logical pipeline
 
@@ -59,6 +67,27 @@ Blockchain / DEX / Social Sources
                     v
              Learning / MLOps
 ```
+
+## Implemented Security Intelligence
+
+`crypto_security/` contains:
+
+- `SecurityAnalysis` audit model;
+- `HoneypotProvider`;
+- `GoPlusProvider` optional adapter;
+- contract verification;
+- honeypot/simulation analysis;
+- buy/sell/transfer tax analysis;
+- holder sell-failure/siphoning analysis;
+- top-holder/top-5 concentration;
+- source/proxy analysis;
+- deterministic risk scoring;
+- hard `DO_NOT_TRADE` security gate;
+- Firebase sink;
+- incremental Firebase runner;
+- unit/integration tests.
+
+Security data is stored under `security/tokens/*` and aggregate run state under `security/status`.
 
 ## Proposed components
 
@@ -140,6 +169,8 @@ Core entities:
 Private keys and signing material must never be stored in source code, normal logs or unencrypted configuration. Execution must occur behind a secure signer abstraction.
 
 Live execution must have an explicit feature flag and independent risk gates.
+
+Security providers are evidence sources, not an absolute guarantee. Unknown or contradictory critical security state must result in `DO_NOT_TRADE`.
 
 ## Failure philosophy
 
