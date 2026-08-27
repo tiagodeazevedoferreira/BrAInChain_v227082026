@@ -1,0 +1,13 @@
+[project]
+name = "brainchain-market-intelligence"
+version = "0.1.0"
+description = "Market and on-chain intelligence for BrAInChain"
+requires-python = ">=3.11"
+dependencies = ["requests>=2.31,<3"]
+
+[project.optional-dependencies]
+firebase = ["firebase-admin>=6.5,<8"]
+test = ["pytest>=8,<9"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
