@@ -2,7 +2,13 @@
 
 ## Status
 
-**Fase 1 concluída.** O discovery engine está implementado, testado em CI, executado contra APIs externas e validado com persistência + leitura no Firebase.
+**Fase 1 concluída. Próxima: Fase 2 — Security Intelligence.**
+
+## Regra de governança do projeto
+
+Ao concluir qualquer etapa, atualizar os arquivos desta pasta `CRYPTO_AUTONOMOUS_TRADING/` com o estado real, decisões, testes, limitações e próximo passo. Esta pasta é a memória técnica persistente utilizada para continuar o desenvolvimento em novos chats.
+
+O agente possui autonomia para decidir e implementar as soluções técnicas, testar, corrigir e validar. O usuário só deve ser acionado quando uma execução manual for realmente necessária.
 
 ## Fase 0 — Contexto e arquitetura
 - [x] Criar documentação de contexto
@@ -32,7 +38,7 @@ Implementação atual:
 
 Limitação conhecida: nenhum agregador público garante cobertura de literalmente todas as moedas recém-criadas em todas as blockchains. A arquitetura usa múltiplos adapters para permitir adicionar listeners diretos de blockchain, DEXs, launchpads e outros indexadores.
 
-## Fase 2 — Security Intelligence
+## Fase 2 — Security Intelligence — PRÓXIMA
 - [ ] Contract inspection
 - [ ] Honeypot detection
 - [ ] Tax/permission analysis
