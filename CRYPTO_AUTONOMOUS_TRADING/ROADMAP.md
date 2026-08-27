@@ -2,7 +2,7 @@
 
 ## Status
 
-**Fase 2 concluída em implementação e validação automatizada; próxima: Fase 3 — Market & On-chain Intelligence.**
+**Fase 2 concluída em implementação e validação operacional; próxima: Fase 3 — Market & On-chain Intelligence.**
 
 ## Regra de governança do projeto
 
@@ -25,7 +25,7 @@ O agente possui autonomia para decidir e implementar as soluções técnicas, te
 - [x] Testes e smoke test
 - [x] Workflow automático a cada 10 minutos
 
-## Fase 2 — Security Intelligence — CONCLUÍDA
+## Fase 2 — Security Intelligence — CONCLUÍDA E VALIDADA
 - [x] `SecurityAnalysis` auditável
 - [x] Honeypot simulation via Honeypot.is
 - [x] Buy/sell/transfer tax analysis
@@ -43,6 +43,21 @@ O agente possui autonomia para decidir e implementar as soluções técnicas, te
 - [x] Engine integration tests
 - [x] GitHub Actions automático a cada 10 minutos
 - [x] Firebase credential cleanup no runner
+- [x] Correção de isolamento do pytest no CI
+- [x] Correção dos defaults de `SecurityAnalysis`
+- [x] Validação operacional de workflow
+
+### Evidência de validação da Fase 2
+Workflow run **#8 / 33116891066**:
+- `test` → success;
+- `security-scan` → success;
+- `SECURITY_INPUT=25`;
+- `SECURITY_ANALYZED=25`;
+- `SECURITY_DO_NOT_TRADE=25`;
+- `SECURITY_CRITICAL=0`;
+- `SECURITY_PIPELINE=OK`.
+
+Os 25 tokens foram bloqueados para negociação pelas regras conservadoras atuais; isso não significa que todos sejam honeypots. O sistema está deliberadamente em modo fail-safe.
 
 ### Fase 2 — limitações conhecidas
 - Liquidity lock/removal permanece `unknown` quando não há evidência confiável de locker; o sistema não presume segurança.
