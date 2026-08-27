@@ -2,7 +2,7 @@
 
 ## Status
 
-**Fase 6 — Paper Trading implementada; validação operacional do workflow pendente.**
+**Fase 7 — Exit Intelligence implementada; validação operacional do workflow pendente.**
 
 ## Regra de governança do projeto
 
@@ -12,7 +12,7 @@ O agente possui autonomia para decidir e implementar as soluções técnicas, te
 
 ## Fase 0 — Contexto e arquitetura — CONCLUÍDA
 - [x] Contexto e arquitetura
-- [x] Premissas de autonomia e memória persistente
+- [x] Contexto de autonomia e memória persistente
 - [x] Firebase + GitHub Actions
 
 ## Fase 1 — Token Discovery — CONCLUÍDA E VALIDADA
@@ -35,7 +35,7 @@ O agente possui autonomia para decidir e implementar as soluções técnicas, te
 - [x] Unit/integration tests
 - [x] CI e validação operacional
 
-## Fase 3 — Market & On-chain Intelligence — IMPLEMENTADA
+## Fase 3 — Market & On-chain Intelligence — IMPLEMENTADA E VALIDADA
 - [x] Price/volume
 - [x] Buy/sell pressure
 - [x] Momentum/acceleration proxies
@@ -69,7 +69,7 @@ O agente possui autonomia para decidir e implementar as soluções técnicas, te
 - [x] Unit tests
 - [x] GitHub Actions
 
-## Fase 6 — Paper Trading — IMPLEMENTADA; CI PENDENTE
+## Fase 6 — Paper Trading — IMPLEMENTADA E VALIDADA
 - [x] Real-time-style signal intake
 - [x] Simulated buy execution
 - [x] Position ledger
@@ -85,18 +85,22 @@ O agente possui autonomia para decidir e implementar as soluções técnicas, te
 - [x] Paper history outside Firebase
 - [x] No wallet/RPC/DEX/CEX signing capability
 - [x] GitHub Actions manual dispatch
-- [ ] Operational CI validation
+- [x] Operational CI validation
 
-## Fase 7 — Exit Intelligence
-- [ ] Trailing stop
-- [ ] Dynamic take profit
-- [ ] Momentum reversal
-- [ ] Volume reversal
-- [ ] Whale exit
-- [ ] Liquidity deterioration
-- [ ] Crash protection
-- [ ] Time stop
-- [ ] Probabilistic peak/reversal detection
+## Fase 7 — Exit Intelligence — IMPLEMENTADA; CI PENDENTE
+- [x] Trailing stop
+- [x] Dynamic take profit with reversal confirmation
+- [x] Momentum reversal
+- [x] Volume reversal
+- [x] Whale exit signal contract
+- [x] Liquidity deterioration
+- [x] Crash protection
+- [x] Time stop
+- [x] Exit score
+- [x] Peak capture measurement
+- [x] Unit tests
+- [x] GitHub Actions manual dispatch
+- [ ] Operational CI validation
 
 ## Fase 8 — Restricted Live Micro Trading
 Pré-condições obrigatórias:
