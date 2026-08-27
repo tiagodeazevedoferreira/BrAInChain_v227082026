@@ -1,0 +1,91 @@
+name: Crypto Discovery
+
+on:
+  push:
+    paths:
+      - "crypto_discovery/**"
+      - ".github/workflows/crypto-discovery.yml"
+  workflow_dispatch:
+    inputs:
+      pages:
+        description: "GeckoTerminal new-pool pages to scan"
+        required: false
+        default: "1"
+  schedule:
+    - cron: "*/10 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crypto-discovery
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: crypto_discovery/pyproject.toml
+
+      - name: Install package and test dependencies
+        working-directory: crypto_discovery
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+
+      - name: Unit tests
+        working-directory: crypto_discovery
+        run: python -m pytest -q
+
+      - name: Live discovery smoke test
+        working-directory: crypto_discovery
+        env:
+          DISCOVERY_PAGES: ${{ inputs.pages || '1' }}
+        run: python -m discovery.main --pages "$DISCOVERY_PAGES"
+
+  persist:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.event_name != 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package and Firebase dependency
+        working-directory: crypto_discovery
+        run: python -m pip install -e ".[firebase]"
+
+      - name: Create temporary Firebase credential
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          set -euo pipefail
+          test -n "$FIREBASE_SERVICE_ACCOUNT" || {
+            echo "ERROR: FIREBASE_SERVICE_ACCOUNT secret is not configured."
+            exit 1
+          }
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
+          chmod 600 "$RUNNER_TEMP/firebase-service-account.json"
+
+      - name: Discover and persist
+        working-directory: crypto_discovery
+        env:
+          FIREBASE_SERVICE_ACCOUNT_FILE: ${{ runner.temp }}/firebase-service-account.json
+          FIREBASE_DATABASE_URL: https://brainchainv227082026-default-rtdb.firebaseio.com
+          DISCOVERY_PAGES: ${{ inputs.pages || '1' }}
+        run: python -m discovery.main --pages "$DISCOVERY_PAGES" --firebase
+
+      - name: Remove temporary Firebase credential
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-service-account.json"
