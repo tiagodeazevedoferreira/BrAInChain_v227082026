@@ -1,0 +1,58 @@
+name: Crypto Market & On-chain Intelligence
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+  push:
+    paths:
+      - "crypto_market/**"
+      - ".github/workflows/crypto-market-intelligence.yml"
+      - "crypto_discovery/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: crypto_market
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[test]"
+      - run: pytest -q
+
+  intelligence-scan:
+    needs: test
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: crypto_market
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[firebase]"
+      - name: Write Firebase service account
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          test -n "$FIREBASE_SERVICE_ACCOUNT_JSON"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > firebase-service-account.json
+          chmod 600 firebase-service-account.json
+      - name: Run market intelligence
+        env:
+          FIREBASE_DATABASE_URL: https://brainchainv227082026-default-rtdb.firebaseio.com
+          FIREBASE_SERVICE_ACCOUNT_FILE: ${{ github.workspace }}/crypto_market/firebase-service-account.json
+          MARKET_MAX_TOKENS: "25"
+        run: python -m market.main --firebase
+      - name: Remove credentials
+        if: always()
+        run: rm -f firebase-service-account.json
