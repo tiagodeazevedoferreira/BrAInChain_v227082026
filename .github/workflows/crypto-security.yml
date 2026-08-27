@@ -6,7 +6,6 @@ on:
     paths:
       - "crypto_security/**"
       - ".github/workflows/crypto-security.yml"
-      - "CRYPTO_AUTONOMOUS_TRADING/**"
   schedule:
     - cron: "*/10 * * * *"
 
