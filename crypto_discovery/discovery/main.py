@@ -12,8 +12,8 @@ def main():
     parser.add_argument(
         "--pages",
         type=int,
-        default=int(os.getenv("DISCOVERY_PAGES", "1")),
-        help="GeckoTerminal new-pool pages to scan (public API: 20 pools/page).",
+        default=int(os.getenv("DISCOVERY_PAGES", "10")),
+        help="GeckoTerminal new-pool pages to scan (public API: 20 pools/page; public pagination is limited).",
     )
     parser.add_argument("--firebase", action="store_true")
     args = parser.parse_args()
