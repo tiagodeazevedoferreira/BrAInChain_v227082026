@@ -2,16 +2,18 @@
 
 ## Architectural principle
 
-Event-driven, modular, adapter-based architecture. Data ingestion, intelligence, dataset/ML, decisioning and execution remain separable.
+Event-driven, modular, adapter-based architecture. Data ingestion, intelligence, dataset/ML, decisioning, paper execution and future live execution remain separable.
 
 ## Current implementation status
 
 - Discovery: `crypto_discovery/` — implemented and validated.
 - Security: `crypto_security/` — implemented and operationally validated.
 - Market/on-chain: `crypto_market/` — implemented with bounded current-state persistence.
-- Dataset/ML foundation: `crypto_ml/` — implemented; production promotion remains gated on sufficient real history and temporal validation.
-- Firebase: operational state only; never an unbounded historical ML store.
-- Execution: intentionally not implemented/enabled.
+- Dataset/ML foundation: `crypto_ml/` — implemented and CI validated.
+- Backtesting: `crypto_backtest/` — implemented and CI validated.
+- Paper trading: `crypto_paper/` — implemented; operational CI validation pending.
+- Firebase: operational state only; never an unbounded historical ML/trading store.
+- Live execution: intentionally not implemented or enabled.
 
 ## Logical pipeline
 
@@ -29,90 +31,74 @@ Market / On-chain Intelligence
       v
 Historical Snapshot Store (outside Firebase)
       |
-      +------> Forward Labels (future only)
+      +------> Forward Labels
       |
       v
-Time-aware Feature Engineering
+Features -> ML -> Validation
       |
       v
-Training / Validation / Walk-forward
-      |
-      v
-ML Ensemble -> Opportunity + Risk
-      |
-      v
-Decision Engine
+Opportunity + Risk Decision
       |
       +--> DO_NOT_TRADE
       |
-      +--> Paper / later restricted Live
-                  |
-                  v
-             Position Monitor
-                  |
-                  v
-             Exit Intelligence
-                  |
-                  v
-             Trade Outcomes
-                  |
-                  v
-             Learning / MLOps
+      +--> Backtest
+      |
+      v
+Paper Executor
+      |
+      +--> Position Ledger
+      +--> PnL / Monitoring
+      +--> Circuit Breakers
+      |
+      v
+Exit Intelligence
+      |
+      v
+Trade Outcomes
+      |
+      v
+Learning / MLOps
+      |
+      v
+[future] Restricted Live Execution
 ```
 
-## Implemented Phase 4 — Dataset & ML Foundation
+## Phase 6 — Paper Trading
 
-`crypto_ml/` contains:
+`crypto_paper/` is simulation-only and deliberately contains no wallet signer, RPC transaction sender, DEX router or exchange credentials.
 
-- normalized `Snapshot` contract for historical observations;
-- append-only JSONL storage abstraction outside Firebase;
-- multi-horizon forward labels at 1h/6h/24h/72h;
-- growth thresholds +10/+25/+50/+100/+500/+1000%;
-- severe collapse/rug class;
-- `UNKNOWN` labels when future data does not exist;
-- time-aware feature extraction from decision-time data only;
-- readiness gate for observations, unique tokens and labeled samples;
-- balanced Random Forest baseline;
+Implemented components:
+
+- `PaperSignal` contract;
+- configurable US$0.01 target position;
+- simulated buy fill with fee and slippage;
+- simulated close with fee and slippage;
+- position ledger outside Firebase;
+- realized and unrealized PnL;
+- max-open-position and max-exposure gates;
+- daily-loss circuit breaker;
+- consecutive-loss circuit breaker;
+- security gate precedence;
+- liquidity and opportunity-score gates;
+- operational event logging;
+- monitoring snapshot;
 - unit tests and GitHub Actions.
 
-The baseline is a research baseline, not a production trading model.
+## Safety boundaries
 
-## Data/ML safety rules
+- Paper mode is the only supported execution mode in Phase 6.
+- A `DO_NOT_TRADE` security state cannot be overridden by opportunity score.
+- Position target is an experiment, not a promise that a venue can execute US$0.01.
+- Insufficient cash, liquidity, exposure or circuit-breaker conditions reject the signal.
+- Firebase receives no unbounded paper-trade history.
+- Live execution requires a later explicit authorization gate and is not part of Phase 6.
 
-- Future observations may be used to create labels but never to create decision-time features.
-- Missing future observations must not silently become negative labels.
-- A model cannot be promoted based only on accuracy.
-- Production promotion requires time-aware splits, walk-forward evaluation, out-of-sample results, calibration, stability and economic backtesting.
-- Historical snapshots must not be appended indefinitely to Firebase.
+## ML and backtesting safety
 
-## Storage policy
-
-Firebase Realtime Database is an operational state store. Discovery, security and market modules write current state and bounded aggregate status. Historical ML/backtest observations use a dedicated storage abstraction with explicit retention and partitioning. The initial implementation is portable JSONL; migration to Parquet/object storage/DuckDB is intentionally isolated behind the storage contract.
-
-## Proposed next components
-
-### Intelligence
-- OnChainAnalyticsEngine
-- SmartMoneyEngine
-- MarketMicrostructureEngine
-- SocialSentimentEngine
-- PumpDetectionEngine
-
-### ML
-- FeatureEngineeringEngine
-- ExtremeOpportunityDetector
-- ensemble comparison
-- calibration
-- walk-forward evaluator
-- model registry/versioning
-
-### Backtesting/execution
-- EventDrivenBacktester
-- PaperExecutor
-- DEXExecutor/CEXExecutor
-- SecureSigner
-- PositionManager
-- ExitEngine
+- Future observations create labels but never decision-time features.
+- Historical data remains outside Firebase.
+- Production model promotion requires temporal validation, out-of-sample evidence, calibration, stability and economic backtesting.
+- Paper results are evidence, not proof of future profitability.
 
 ## Security boundaries
 
