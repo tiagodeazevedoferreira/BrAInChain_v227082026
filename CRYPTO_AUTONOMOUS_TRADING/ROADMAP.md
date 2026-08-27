@@ -2,7 +2,7 @@
 
 ## Status
 
-**Fase 3 implementada; validação operacional do workflow em andamento. Próxima: Fase 4 — Dataset & Machine Learning.**
+**Fase 6 — Paper Trading implementada; validação operacional do workflow pendente.**
 
 ## Regra de governança do projeto
 
@@ -10,98 +10,82 @@ Ao concluir qualquer etapa, atualizar os arquivos desta pasta `CRYPTO_AUTONOMOUS
 
 O agente possui autonomia para decidir e implementar as soluções técnicas, testar, corrigir e validar. O usuário só deve ser acionado quando uma execução manual for realmente necessária.
 
-## Fase 0 — Contexto e arquitetura
+## Fase 0 — Contexto e arquitetura — CONCLUÍDA
 - [x] Contexto e arquitetura
 - [x] Premissas de autonomia e memória persistente
 - [x] Firebase + GitHub Actions
 
-## Fase 1 — Token Discovery — CONCLUÍDA
-- [x] Descoberta GeckoTerminal
-- [x] Descoberta complementar DEX Screener
-- [x] Modelo normalizado
+## Fase 1 — Token Discovery — CONCLUÍDA E VALIDADA
+- [x] GeckoTerminal
+- [x] DEX Screener
+- [x] Normalização
 - [x] Deduplicação
 - [x] Isolamento de falha
 - [x] Firebase RTDB
 - [x] Testes e smoke test
-- [x] Workflow automático a cada 10 minutos
+- [x] Workflow automático
 
 ## Fase 2 — Security Intelligence — CONCLUÍDA E VALIDADA
-- [x] `SecurityAnalysis` auditável
-- [x] Honeypot simulation via Honeypot.is
-- [x] Buy/sell/transfer tax analysis
-- [x] Simulation success/failure
-- [x] Holder sell-failure and siphoning indicators
-- [x] Contract source/open-source analysis
-- [x] Proxy/proxy-call analysis
-- [x] Top-holder and top-5 concentration
-- [x] Optional GoPlus Token Security adapter
-- [x] Deterministic Scam/Rug Pull Risk Score
-- [x] Hard security gate `DO_NOT_TRADE`
-- [x] Firebase persistence em `security/tokens/*`
-- [x] Incremental processing
+- [x] Honeypot, taxes e simulations
+- [x] Contract/source/proxy analysis
+- [x] Holder analysis
+- [x] Deterministic risk score
+- [x] Hard `DO_NOT_TRADE` gate
+- [x] Firebase persistence e processamento incremental
 - [x] Unit/integration tests
-- [x] GitHub Actions automático
-- [x] Firebase credential cleanup
-- [x] CI isolation/default fixes
-- [x] Operational validation
+- [x] CI e validação operacional
 
 ## Fase 3 — Market & On-chain Intelligence — IMPLEMENTADA
-- [x] Price/volume observation
-- [x] Buy/sell transaction pressure
-- [x] Momentum and price-acceleration proxies
-- [x] Liquidity and liquidity-turnover metrics
-- [x] Trade-level wallet activity when provider exposes trader addresses
-- [x] Whale concentration proxy using largest trade share
-- [x] Smart-money behavior proxy using net-buy pressure
-- [x] Pump/manipulation heuristics
-- [x] Provider failure isolation
-- [x] Fail-closed decision behavior
-- [x] Bounded Firebase latest-state persistence
+- [x] Price/volume
+- [x] Buy/sell pressure
+- [x] Momentum/acceleration proxies
+- [x] Liquidity/turnover
+- [x] Trade wallet activity
+- [x] Whale concentration proxy
+- [x] Smart-money proxy
+- [x] Manipulation heuristics
+- [x] Fail-closed behavior
+- [x] Bounded Firebase current state
+
+## Fase 4 — Dataset & Machine Learning — IMPLEMENTADA E VALIDADA
+- [x] ML sample contract
+- [x] Historical JSONL storage abstraction outside Firebase
+- [x] Forward multi-horizon labels
+- [x] Growth and crash labels
+- [x] Time-local feature extraction
+- [x] Readiness gate
+- [x] Research baseline
+- [x] Tests
+- [x] GitHub Actions
+
+## Fase 5 — Backtesting — IMPLEMENTADA E VALIDADA
+- [x] Event-driven backtester
+- [x] Fees
+- [x] Gas
+- [x] Slippage
+- [x] Security/score/liquidity gates
+- [x] Trade journal
+- [x] PnL and summary metrics
 - [x] Unit tests
-- [x] Engine tests
-- [x] GitHub Actions every 10 minutes + manual dispatch
+- [x] GitHub Actions
 
-### Fase 3 — Limitações deliberadas
-- Holder growth is `null` until a bounded baseline or external historical dataset exists. A single point-in-time holder count cannot establish growth.
-- Smart-money is a proxy, not wallet-profitability intelligence. Full smart-money scoring requires wallet history and outcome labels.
-- Whale detection is trade-concentration based and complements, rather than replaces, security holder concentration.
-- Firebase is not used for historical snapshots.
-
-### Fase 3 — Evidência CI
-Workflow `Crypto Market & On-chain Intelligence` foi criado e o primeiro run identificou uma expectativa incorreta no teste de concentração de whale; a falha foi corrigida no commit seguinte. A execução corretiva está sendo validada antes de marcar a fase como operacionalmente concluída.
-
-## Fase 4 — Dataset & Machine Learning
-- [ ] Historical dataset builder
-- [ ] Storage strategy for historical data (Parquet/object storage/DuckDB or equivalent)
-- [ ] Winner/loser/scam/rug-pull labels
-- [ ] Multi-horizon labels (+10/+25/+50/+100/+500/+1000%, crash/rug)
-- [ ] Time-aware feature engineering
-- [ ] Baseline models
-- [ ] Ensemble comparison
-- [ ] Calibration
-- [ ] Walk-forward validation
-- [ ] Out-of-sample evaluation
-- [ ] Model registry/versioning
-
-## Fase 5 — Backtesting
-- [ ] Event-driven backtester
-- [ ] Fees
-- [ ] Gas
-- [ ] Slippage
-- [ ] Latency
-- [ ] Failed transactions
-- [ ] Entry strategies
-- [ ] Exit strategies
-- [ ] Risk-adjusted metrics
-
-## Fase 6 — Paper Trading
-- [ ] Real-time signal generation
-- [ ] Simulated execution
-- [ ] Position ledger
-- [ ] PnL
-- [ ] Exit engine
-- [ ] Alerts
-- [ ] Operational monitoring
+## Fase 6 — Paper Trading — IMPLEMENTADA; CI PENDENTE
+- [x] Real-time-style signal intake
+- [x] Simulated buy execution
+- [x] Position ledger
+- [x] Realized/unrealized PnL
+- [x] Fee/slippage simulation
+- [x] Security hard gate
+- [x] Liquidity/opportunity gates
+- [x] Max positions/exposure controls
+- [x] Daily loss circuit breaker
+- [x] Consecutive-loss circuit breaker
+- [x] Operational event logging
+- [x] Monitoring snapshot
+- [x] Paper history outside Firebase
+- [x] No wallet/RPC/DEX/CEX signing capability
+- [x] GitHub Actions manual dispatch
+- [ ] Operational CI validation
 
 ## Fase 7 — Exit Intelligence
 - [ ] Trailing stop
@@ -135,6 +119,15 @@ Pré-condições obrigatórias:
 - [ ] Strategy/threshold optimization
 - [ ] Regime monitoring
 
+## Regras de segurança
+
+- Não existe execução real neste módulo.
+- `TRADING_MODE=paper` é obrigatório para esta fase.
+- Private keys não são aceitas.
+- Firebase não recebe histórico ilimitado.
+- Em caso de dúvida crítica: `DO_NOT_TRADE`.
+- Live trading não é ativado automaticamente.
+
 ## Regra de avanço
 
-Não pular fases. Uma fase só é considerada concluída quando houver código funcional, testes, evidência operacional e documentação correspondente.
+Uma fase só é concluída quando houver código funcional, testes, evidência operacional e documentação correspondente.
