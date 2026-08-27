@@ -62,6 +62,49 @@ São tecnologias candidatas. Antes de introduzir qualquer uma, analisar e reapro
 - notifications/
 - monitoring/
 
+## ESTADO IMPLEMENTADO
+
+### Fase 1 — Discovery
+
+Implementado em `crypto_discovery/`: GeckoTerminal + DEX Screener, normalização, deduplicação, tolerância a falhas, Firebase e GitHub Actions a cada 10 minutos.
+
+### Fase 2 — Security Intelligence
+
+Implementado em `crypto_security/`:
+
+- `SecurityAnalysis` auditável;
+- Honeypot.is simulation/honeypot checks;
+- buy/sell/transfer tax analysis;
+- simulation success/failure;
+- holder sell failures and siphoning;
+- contract source/open-source verification;
+- proxy/proxy-call detection;
+- top-holder/top-5 concentration;
+- optional GoPlus Token Security provider;
+- deterministic risk score;
+- critical flags/warnings;
+- hard `DO_NOT_TRADE` gate;
+- Firebase persistence em `security/tokens/*`;
+- incremental runner que processa tokens ainda não analisados;
+- unit e integration tests;
+- GitHub Actions a cada 10 minutos e em alterações do módulo/documentação.
+
+A documentação dos provedores indica que Honeypot.is fornece simulação de compra/venda, taxes, holder analysis, contract code e top holders; GoPlus fornece Token Security API para dados adicionais de risco. Esses serviços são evidências de segurança, não auditorias formais. citeturn1search0turn2search0turn2search3turn0search10
+
+### Validação
+
+A Fase 1 foi validada pelo usuário em execução real.
+
+Para a Fase 2, os testes unitários e de integração estão codificados e o workflow está preparado para validação automática. A ferramenta atual não fornece despacho manual de workflow, portanto a execução operacional da Fase 2 será confirmada pelo GitHub Actions no próximo disparo automático ou por `workflow_dispatch` no GitHub, caso necessário.
+
+## SEGURANÇA
+
+Verificar contrato, honeypot, permissões, taxas, proxy/upgradeability, liquidez, concentração, holders, slippage, gas, saldo, limites e circuit breakers antes de qualquer execução.
+
+Em caso de incerteza crítica: `DO_NOT_TRADE`.
+
+**Limitação importante:** liquidity lock/removal ainda permanece `unknown` quando não existe evidência confiável de locker. Ausência de evidência não é tratada como prova de segurança.
+
 ## ML
 
 O modelo deverá ser avaliado empiricamente como ensemble. Candidatos iniciais: LightGBM/XGBoost, Random Forest e redes neurais; modelos temporais poderão ser avaliados posteriormente.
@@ -75,12 +118,6 @@ Targets planejados:
 - probabilidade de perda de liquidez.
 
 Validação temporal obrigatória: walk-forward, time-series cross-validation e out-of-sample quando aplicável. Evitar leakage e survivorship bias.
-
-## SEGURANÇA
-
-Verificar contrato, honeypot, permissões, taxas, proxy/upgradeability, liquidez, concentração, holders, slippage, gas, saldo, limites e circuit breakers antes de qualquer execução.
-
-Em caso de incerteza crítica: `DO_NOT_TRADE`.
 
 ## MODOS DE OPERAÇÃO
 
@@ -111,8 +148,8 @@ A intenção inicial é uma posição configurável de US$0,01. Se o valor for i
 
 FASE 0 — Contexto e arquitetura — CONCLUÍDA
 FASE 1 — Discovery e coleta — CONCLUÍDA
-FASE 2 — Security Intelligence — PRÓXIMA
-FASE 3 — Market/On-chain Intelligence
+FASE 2 — Security Intelligence — IMPLEMENTADA / EM VALIDAÇÃO OPERACIONAL
+FASE 3 — Market/On-chain Intelligence — PRÓXIMA
 FASE 4 — Dataset e ML
 FASE 5 — Backtesting
 FASE 6 — Paper Trading
@@ -120,25 +157,16 @@ FASE 7 — Exit Intelligence
 FASE 8 — Restricted Live Micro Trading
 FASE 9 — Continuous Learning
 
-## ESTADO ATUAL — APÓS FASE 1
-
-O Discovery Engine está implementado e validado. Há adapters para GeckoTerminal e DEX Screener, normalização de pools/tokens, deduplicação, isolamento de falha por fonte e persistência no Firebase RTDB.
-
-O GitHub Actions executa testes, smoke test contra APIs reais, persistência e read-after-write no Firebase. A integração GitHub Actions → Firebase foi comprovada com `FIREBASE_CONNECTION=OK`, `FIREBASE_WRITE=OK` e `FIREBASE_READ=OK`.
-
-A execução automática do discovery está configurada para ocorrer a cada 10 minutos, além de `workflow_dispatch`.
-
-Limitação conhecida: agregadores públicos não garantem cobertura literal de todos os tokens recém-criados. A arquitetura deve evoluir para listeners diretos de blockchain/DEX, launchpads e outros indexadores.
-
 ## REGRA PARA QUALQUER NOVO CHAT
 
 1. Leia este arquivo primeiro.
 2. Leia `ROADMAP.md`, `ARCHITECTURE.md` e `DECISIONS.md`.
-3. Analise o estado real do repositório antes de alterar código.
-4. Identifique a fase atual pelo código e pelos testes, não apenas pela documentação.
-5. Tome autonomamente as decisões técnicas necessárias.
-6. Implemente, teste, valide e corrija sem pedir aprovação para decisões rotineiras.
-7. Só peça intervenção manual quando realmente bloqueado.
-8. Não habilite trading real sem as pré-condições e autorização explícita.
-9. **Atualize sempre esta pasta após cada etapa relevante:** contexto, roadmap, arquitetura/decisões e, quando necessário, um registro de implementação/testes.
-10. Registre o que foi feito, arquivos relevantes, testes executados, resultados, limitações e próximo passo.
+3. Leia `IMPLEMENTATION_LOG.md`.
+4. Analise o estado real do repositório antes de alterar código.
+5. Identifique a fase atual pelo código e pelos testes, não apenas pela documentação.
+6. Tome autonomamente as decisões técnicas necessárias.
+7. Implemente, teste, valide e corrija sem pedir aprovação para decisões rotineiras.
+8. Só peça intervenção manual quando realmente bloqueado.
+9. Não habilite trading real sem as pré-condições e autorização explícita.
+10. **Atualize sempre esta pasta após cada etapa relevante.**
+11. Registre o que foi feito, arquivos relevantes, testes executados, resultados, limitações e próximo passo.
