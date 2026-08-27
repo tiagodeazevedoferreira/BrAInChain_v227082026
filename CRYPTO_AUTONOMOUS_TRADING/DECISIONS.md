@@ -83,3 +83,19 @@ Training → validation → backtest → approval → deployment → monitoring 
 ## D-014 — Liquidity lock is never inferred
 
 **Decision:** If no reliable evidence of a liquidity lock/locker is available, the state remains `unknown` and contributes risk. The engine never converts absence of evidence into proof of safety.
+
+## D-015 — Firebase is operational state, not a historical data lake
+
+**Decision:** Firebase RTDB may store current discovery/security/market state and bounded aggregate status, but not unbounded historical snapshots.
+
+**Reason:** The previous project exhausted free RTDB capacity. Historical ML/backtesting data must use a dedicated, partitionable storage strategy with retention and growth controls.
+
+## D-016 — Market intelligence does not invent unavailable data
+
+**Decision:** Missing holder-growth, wallet-history or provider fields remain `unknown`/`null` and never become positive evidence.
+
+**Reason:** A false positive in early-token intelligence can be more dangerous than an omitted signal.
+
+## D-017 — Smart-money score is initially a proxy
+
+**Decision:** Until a wallet-history dataset exists, smart-money scoring is explicitly a proxy based on observable trade behavior, not a claim that a wallet is profitable or historically predictive.
