@@ -60,6 +60,7 @@ Criar um sistema que descubra novas criptomoedas, analise segurança, liquidez, 
 - ML usa validação temporal e evita leakage/survivorship bias.
 - Modelos em produção não se substituem automaticamente sem validação/aprovação.
 - Toda decisão deve ser auditável e reproduzível.
+- Firebase RTDB é operational state store, não data lake histórico.
 
 ## ESTADO ATUAL
 
@@ -67,31 +68,32 @@ Criar um sistema que descubra novas criptomoedas, analise segurança, liquidez, 
 
 `crypto_discovery/` possui GeckoTerminal + DEX Screener, normalização, deduplicação, isolamento de falhas, Firebase RTDB, testes, smoke test e workflow periódico.
 
-**Fase 2 — Security Intelligence: IMPLEMENTADA / EM VALIDAÇÃO OPERACIONAL.**
+**Fase 2 — Security Intelligence: CONCLUÍDA E VALIDADA.**
 
-`crypto_security/` possui:
-- `SecurityAnalysis` auditável;
-- Honeypot.is simulation/honeypot;
-- taxes e simulation status;
-- holder sell failures/siphoning;
-- contract source verification;
-- proxy/proxy-call analysis;
-- top-holder/top-5 concentration;
-- optional GoPlus adapter;
-- deterministic risk score;
-- hard `DO_NOT_TRADE` gate;
-- Firebase persistence;
-- incremental runner;
-- unit/integration tests;
-- GitHub Actions periódico e por alteração.
+`crypto_security/` possui `SecurityAnalysis`, Honeypot.is, taxes/simulation, holder failures/siphoning, contract verification, proxy analysis, holder concentration, GoPlus opcional, deterministic risk score, hard `DO_NOT_TRADE`, Firebase persistence, incremental runner, testes e workflow validado.
 
-A Fase 2 ainda precisa de confirmação operacional do workflow contra os tokens atuais do Firebase. O agente desta sessão não dispõe de uma ação GitHub para disparar `workflow_dispatch`; o workflow possui disparo automático e manual no próprio GitHub.
+**Fase 3 — Market & On-chain Intelligence: IMPLEMENTADA; validação corretiva do CI em andamento.**
+
+`crypto_market/` possui:
+- DEX Screener market provider;
+- GeckoTerminal trade provider;
+- price/volume/liquidity metrics;
+- buy/sell pressure;
+- momentum/price acceleration;
+- unique trader activity quando disponível;
+- whale concentration proxy;
+- smart-money behavior proxy;
+- pump/manipulation heuristics;
+- fail-closed behavior;
+- bounded Firebase latest-state persistence;
+- unit/engine tests;
+- workflow periódico e manual.
+
+Holder growth permanece `null` até existir um baseline/historical dataset adequado. Smart-money permanece um proxy até existir histórico de wallets e resultados.
 
 ## PRÓXIMA AÇÃO
 
-**Fase 3 — Market & On-chain Intelligence.**
-
-Antes de implementar, analisar os dados que já existem na descoberta e as melhores fontes disponíveis. Construir adapters e pipelines para preço/volume, crescimento de holders, pressão de compra/venda, atividade de wallets, whales, smart money, momentum, volatilidade, liquidez e detecção de pump/manipulação.
+Após a validação operacional da Fase 3, executar **Fase 4 — Dataset & Machine Learning**, começando pela arquitetura de armazenamento histórico fora do Firebase, dataset builder, multi-horizon labels e baseline ML com validação temporal.
 
 Não implementar compra real.
 
