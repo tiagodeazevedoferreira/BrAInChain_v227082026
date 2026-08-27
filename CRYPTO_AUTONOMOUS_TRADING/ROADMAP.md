@@ -2,116 +2,115 @@
 
 ## Status
 
-**Fase 7 — Exit Intelligence implementada; validação operacional do workflow pendente.**
+**Fase 8 — Restricted Live Micro Trading: safety boundary implementada; validação operacional do workflow pendente.**
 
-## Regra de governança do projeto
+## Regra de governança
 
-Ao concluir qualquer etapa, atualizar os arquivos desta pasta `CRYPTO_AUTONOMOUS_TRADING/` com o estado real, decisões, testes, limitações e próximo passo. Esta pasta é a memória técnica persistente utilizada para continuar o desenvolvimento em novos chats.
+Ao concluir qualquer etapa, atualizar `CRYPTO_AUTONOMOUS_TRADING/` com o estado real, decisões, testes, limitações e próximo passo. Esta pasta é a memória técnica persistente para continuidade em novos chats.
 
-O agente possui autonomia para decidir e implementar as soluções técnicas, testar, corrigir e validar. O usuário só deve ser acionado quando uma execução manual for realmente necessária.
+## Fases concluídas
 
-## Fase 0 — Contexto e arquitetura — CONCLUÍDA
+### Fase 0 — Contexto e arquitetura — CONCLUÍDA
 - [x] Contexto e arquitetura
-- [x] Contexto de autonomia e memória persistente
+- [x] Autonomia e memória persistente
 - [x] Firebase + GitHub Actions
 
-## Fase 1 — Token Discovery — CONCLUÍDA E VALIDADA
-- [x] GeckoTerminal
-- [x] DEX Screener
-- [x] Normalização
-- [x] Deduplicação
-- [x] Isolamento de falha
+### Fase 1 — Token Discovery — CONCLUÍDA E VALIDADA
+- [x] GeckoTerminal / DEX Screener
+- [x] Normalização / deduplicação
+- [x] Tolerância a falhas
 - [x] Firebase RTDB
-- [x] Testes e smoke test
-- [x] Workflow automático
+- [x] Testes / smoke test / workflow
 
-## Fase 2 — Security Intelligence — CONCLUÍDA E VALIDADA
-- [x] Honeypot, taxes e simulations
+### Fase 2 — Security Intelligence — CONCLUÍDA E VALIDADA
+- [x] Honeypot, taxes, simulations
 - [x] Contract/source/proxy analysis
 - [x] Holder analysis
 - [x] Deterministic risk score
-- [x] Hard `DO_NOT_TRADE` gate
-- [x] Firebase persistence e processamento incremental
-- [x] Unit/integration tests
-- [x] CI e validação operacional
+- [x] Hard `DO_NOT_TRADE`
+- [x] Firebase incremental persistence
+- [x] CI validado
 
-## Fase 3 — Market & On-chain Intelligence — IMPLEMENTADA E VALIDADA
+### Fase 3 — Market & On-chain Intelligence — CONCLUÍDA E VALIDADA
 - [x] Price/volume
 - [x] Buy/sell pressure
-- [x] Momentum/acceleration proxies
+- [x] Momentum/acceleration
 - [x] Liquidity/turnover
 - [x] Trade wallet activity
 - [x] Whale concentration proxy
 - [x] Smart-money proxy
 - [x] Manipulation heuristics
-- [x] Fail-closed behavior
-- [x] Bounded Firebase current state
+- [x] Fail-closed
+- [x] Bounded Firebase state
 
-## Fase 4 — Dataset & Machine Learning — IMPLEMENTADA E VALIDADA
-- [x] ML sample contract
-- [x] Historical JSONL storage abstraction outside Firebase
+### Fase 4 — Dataset & Machine Learning — CONCLUÍDA E VALIDADA
+- [x] ML contracts
+- [x] Historical JSONL outside Firebase
 - [x] Forward multi-horizon labels
-- [x] Growth and crash labels
-- [x] Time-local feature extraction
+- [x] Growth/crash labels
+- [x] Time-local features
 - [x] Readiness gate
 - [x] Research baseline
-- [x] Tests
-- [x] GitHub Actions
+- [x] Tests / CI
 
-## Fase 5 — Backtesting — IMPLEMENTADA E VALIDADA
+### Fase 5 — Backtesting — CONCLUÍDA E VALIDADA
 - [x] Event-driven backtester
-- [x] Fees
-- [x] Gas
-- [x] Slippage
-- [x] Security/score/liquidity gates
+- [x] Fees / gas / slippage
+- [x] Security / score / liquidity gates
 - [x] Trade journal
-- [x] PnL and summary metrics
-- [x] Unit tests
-- [x] GitHub Actions
+- [x] PnL / metrics
+- [x] Tests / CI
 
-## Fase 6 — Paper Trading — IMPLEMENTADA E VALIDADA
-- [x] Real-time-style signal intake
-- [x] Simulated buy execution
-- [x] Position ledger
-- [x] Realized/unrealized PnL
-- [x] Fee/slippage simulation
-- [x] Security hard gate
-- [x] Liquidity/opportunity gates
-- [x] Max positions/exposure controls
-- [x] Daily loss circuit breaker
-- [x] Consecutive-loss circuit breaker
-- [x] Operational event logging
-- [x] Monitoring snapshot
-- [x] Paper history outside Firebase
-- [x] No wallet/RPC/DEX/CEX signing capability
-- [x] GitHub Actions manual dispatch
-- [x] Operational CI validation
+### Fase 6 — Paper Trading — CONCLUÍDA E VALIDADA
+- [x] Simulated execution
+- [x] Position ledger / PnL
+- [x] Fees / slippage
+- [x] Security / liquidity / opportunity gates
+- [x] Exposure / position limits
+- [x] Daily / consecutive loss breakers
+- [x] Monitoring / logging
+- [x] Historical storage outside Firebase
+- [x] No signing or live transport
+- [x] CI validated
 
-## Fase 7 — Exit Intelligence — IMPLEMENTADA; CI PENDENTE
+### Fase 7 — Exit Intelligence — CONCLUÍDA E VALIDADA
 - [x] Trailing stop
-- [x] Dynamic take profit with reversal confirmation
-- [x] Momentum reversal
-- [x] Volume reversal
-- [x] Whale exit signal contract
+- [x] Dynamic take profit + reversal confirmation
+- [x] Momentum / volume reversal
+- [x] Whale exit contract
 - [x] Liquidity deterioration
 - [x] Crash protection
 - [x] Time stop
 - [x] Exit score
-- [x] Peak capture measurement
-- [x] Unit tests
-- [x] GitHub Actions manual dispatch
-- [ ] Operational CI validation
+- [x] Peak capture
+- [x] Tests / CI validated
 
-## Fase 8 — Restricted Live Micro Trading
-Pré-condições obrigatórias:
-- [ ] Backtesting satisfatório
-- [ ] Out-of-sample satisfatório
-- [ ] Paper trading satisfatório
-- [ ] Security tests aprovados
-- [ ] Failure tests aprovados
-- [ ] Secrets/signing seguros
-- [ ] Circuit breakers ativos
-- [ ] Autorização explícita do proprietário
+## Fase 8 — Restricted Live Micro Trading — IMPLEMENTADA; CI PENDENTE
+
+### Safety boundary
+- [x] `LiveConfig`
+- [x] Explicit `TRADING_MODE=live` gate
+- [x] `LIVE_TRADING_ENABLED` gate
+- [x] Explicit owner authorization gate
+- [x] Backtest evidence gate
+- [x] Out-of-sample evidence gate
+- [x] Paper evidence gate
+- [x] Security tests gate
+- [x] Failure tests gate
+- [x] Secure signing/secret configuration gate
+- [x] Position/exposure limits
+- [x] Gas/slippage limits
+- [x] Daily/consecutive loss limits
+- [x] Fail-closed `LiveExecutor`
+- [x] CI workflow with `workflow_dispatch`
+- [ ] Operational CI validation
+- [ ] Approved venue adapter
+- [ ] Actual live authorization
+
+### Important
+A CI-green Phase 8 only proves that the safety boundary works. It does not prove profitability and does not authorize real-money trading.
+
+Before an approved venue adapter is implemented, the project must produce empirical out-of-sample and sustained paper-trading evidence. No live order is sent by the current code.
 
 ## Fase 9 — Continuous Learning
 - [ ] Trade outcome dataset
@@ -125,12 +124,12 @@ Pré-condições obrigatórias:
 
 ## Regras de segurança
 
-- Não existe execução real neste módulo.
-- `TRADING_MODE=paper` é obrigatório para esta fase.
-- Private keys não são aceitas.
+- Live trading nunca é ativado automaticamente.
+- Private keys nunca ficam no código, logs ou configuração não protegida.
 - Firebase não recebe histórico ilimitado.
+- US$0,01 é alvo experimental e pode ser inviável em determinados venues.
+- Não contornar mínimos de ordem, gas, slippage ou regras de DEX/CEX.
 - Em caso de dúvida crítica: `DO_NOT_TRADE`.
-- Live trading não é ativado automaticamente.
 
 ## Regra de avanço
 
