@@ -44,23 +44,38 @@ Pipeline:
 - Modelos em produção não podem se substituir automaticamente sem validação/aprovação.
 - Toda decisão deve ser auditável e reproduzível.
 
+## Estado atual
+
+**Fase 1 — Token Discovery: CONCLUÍDA.**
+
+Já existe código funcional em `crypto_discovery/` com:
+- adapter GeckoTerminal para novos pools;
+- adapter DEX Screener para descoberta complementar;
+- modelo normalizado `DiscoveredPool`;
+- deduplicação e isolamento de falhas;
+- persistência em Firebase RTDB;
+- testes unitários;
+- smoke test contra APIs reais;
+- GitHub Actions a cada 10 minutos;
+- verificação read-after-write no Firebase.
+
+A última validação operacional do workflow foi concluída com sucesso: testes, descoberta real, persistência Firebase e leitura de verificação passaram.
+
 ## Próxima ação esperada
 
-**Não comece implementando o bot de compra.**
+**Executar a Fase 2 — Security Intelligence de ponta a ponta.**
 
-Primeiro faça uma análise técnica do repositório atual e determine:
+Primeiro analise as melhores fontes disponíveis e a compatibilidade com as redes/DEXs descobertas na Fase 1. Depois implemente adapters e um Security Engine modular para:
 
-1. estrutura existente;
-2. linguagem e stack existentes;
-3. workflows GitHub Actions existentes;
-4. componentes reutilizáveis;
-5. bancos/dados já existentes;
-6. integrações já disponíveis;
-7. testes existentes;
-8. possíveis conflitos com a arquitetura planejada;
-9. primeira etapa do roadmap que pode ser implementada com segurança.
+1. inspeção de contrato;
+2. honeypot detection;
+3. tax/permission analysis;
+4. proxy/upgradeability analysis;
+5. holder concentration;
+6. liquidity lock/removal;
+7. Scam/Rug Pull Risk Score.
 
-Depois apresente o diagnóstico e avance somente até onde for possível sem necessidade de uma decisão manual do proprietário.
+Não implementar compra real nesta fase. O resultado deve ser um `SecurityAnalysis` auditável e persistido, que será usado como gate obrigatório pelas fases posteriores.
 
 ## Critério de continuidade
 
