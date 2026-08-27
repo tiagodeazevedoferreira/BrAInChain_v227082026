@@ -2,33 +2,22 @@
 
 ## CONTEXTO PARA NOVOS CHATS
 
-Este diretório contém a especificação-base para uma futura evolução do projeto BrAInChain para um sistema de inteligência e automação de trading de novas criptomoedas.
+Este diretório é a memória técnica persistente do projeto. Sempre que o desenvolvimento avançar, esta pasta deve ser atualizada com o estado real, decisões, testes e próximos passos.
 
-**IMPORTANTE:** este arquivo é um documento de contexto e planejamento. NÃO significa que o trading real esteja implementado ou habilitado.
+**IMPORTANTE:** trading real permanece desabilitado até que todas as pré-condições do roadmap sejam satisfeitas e exista autorização explícita.
 
 ## OBJETIVO
 
-Construir progressivamente um sistema capaz de:
+Construir progressivamente um sistema capaz de descobrir novas criptomoedas e pools, avaliar segurança e risco, analisar dados de mercado/on-chain/social, utilizar Machine Learning para identificar oportunidades assimétricas, executar backtesting/paper trading e, somente após validação rigorosa, realizar microoperações automatizadas e gerenciar suas saídas.
 
-1. Descobrir novas criptomoedas e novos pares/pools em múltiplas blockchains/DEXs.
-2. Identificar o contrato de cada token e coletar dados de mercado, liquidez e on-chain.
-3. Avaliar segurança do contrato, honeypot, rug-pull, concentração e risco de liquidez.
-4. Analisar holders, whales, smart money, volume, momentum, aceleração de preço e fluxo de capital.
-5. Incorporar dados sociais/sentimento quando disponíveis.
-6. Criar features temporais para Machine Learning.
-7. Treinar modelos para estimar probabilidade de movimentos extremos, drawdown, crash e tempo até determinados retornos.
-8. Gerar Opportunity Score e Risk Score.
-9. Simular entradas e saídas através de backtesting e paper trading.
-10. Desenvolver um Execution Engine com adapters para DEX/CEX.
-11. Usar inicialmente uma microposição-alvo de US$0,01, respeitando mínimos de ordem, gas, taxas e slippage.
-12. Monitorar posições em tempo real e utilizar trailing stop, momentum reversal, whale exit, liquidity deterioration, crash protection e time stop.
-13. Aprender continuamente a partir dos resultados, sem permitir atualização não validada de modelos em produção.
+## PREMISSAS OPERACIONAIS
 
-## PRINCÍPIO CENTRAL
-
-O sistema não deve tentar prever o futuro com certeza nem assumir que todo token que sobe continuará subindo. A meta é identificar oportunidades estatisticamente assimétricas, filtrá-las por segurança e risco e maximizar retorno ajustado ao risco.
-
-O sistema deve considerar que o pico só é conhecido retrospectivamente. Portanto, a saída deve ser tratada como problema de detecção probabilística de reversão, e não como previsão exata do topo.
+1. **Autonomia de desenvolvimento:** o agente deve decidir a implementação técnica, criar/alterar código, configurar componentes, testar, corrigir e validar resultados sem pedir decisões pequenas ao usuário.
+2. **Intervenção manual somente quando necessária:** o usuário só deve ser acionado quando uma ação depender de credencial, autorização, confirmação externa, 2FA/CAPTCHA, conexão de serviço/carteira ou outra operação que as ferramentas não possam executar.
+3. **Memória no GitHub:** ao final de cada etapa, os arquivos desta pasta `CRYPTO_AUTONOMOUS_TRADING/` devem ser atualizados para registrar o estado real do projeto, independentemente do histórico do chat.
+4. **Não assumir implementação:** documentação deve refletir somente o que foi realmente implementado e validado.
+5. **Segurança antes de retorno:** nenhum score de oportunidade pode ultrapassar um bloqueio crítico de segurança.
+6. **Trading real não é desenvolvimento:** autonomia técnica não constitui autorização para movimentar dinheiro real.
 
 ## FLUXO PRINCIPAL
 
@@ -51,7 +40,7 @@ DISCOVERY → NORMALIZATION → SECURITY → ON-CHAIN → MARKET → SOCIAL → 
 - GitHub Actions
 - Frontend React/Next.js/TypeScript
 
-A arquitetura deve ser modular e baseada em adapters para permitir novas blockchains, DEXs, provedores de dados e mecanismos de execução sem reescrever o núcleo.
+São tecnologias candidatas. Antes de introduzir qualquer uma, analisar e reaproveitar a infraestrutura existente do BrAInChain quando fizer sentido.
 
 ## MÓDULOS PLANEJADOS
 
@@ -75,7 +64,7 @@ A arquitetura deve ser modular e baseada em adapters para permitir novas blockch
 
 ## ML
 
-O modelo deverá ser tratado como ensemble e comparado empiricamente. Candidatos iniciais: LightGBM/XGBoost, Random Forest e redes neurais; posteriormente modelos temporais podem ser avaliados.
+O modelo deverá ser avaliado empiricamente como ensemble. Candidatos iniciais: LightGBM/XGBoost, Random Forest e redes neurais; modelos temporais poderão ser avaliados posteriormente.
 
 Targets planejados:
 - probabilidade de +10%, +25%, +50%, +100%, +500%, +1000% em diferentes horizontes;
@@ -85,37 +74,31 @@ Targets planejados:
 - probabilidade de crash;
 - probabilidade de perda de liquidez.
 
-Validação deve respeitar a natureza temporal dos dados: walk-forward, time-series cross-validation e out-of-sample. Evitar leakage e survivorship bias.
+Validação temporal obrigatória: walk-forward, time-series cross-validation e out-of-sample quando aplicável. Evitar leakage e survivorship bias.
 
 ## SEGURANÇA
 
-A segurança precede a oportunidade. Um score ML alto nunca pode superar uma condição crítica de segurança.
+Verificar contrato, honeypot, permissões, taxas, proxy/upgradeability, liquidez, concentração, holders, slippage, gas, saldo, limites e circuit breakers antes de qualquer execução.
 
-Exemplo:
-ML_SCORE alto + SCAM_RISK alto = DO NOT TRADE.
-
-Antes de qualquer trade real, verificar contrato, honeypot, liquidez, concentração, slippage, taxas, gas, saldo, limites e circuit breakers.
+Em caso de incerteza crítica: `DO_NOT_TRADE`.
 
 ## MODOS DE OPERAÇÃO
 
-O sistema deve nascer em:
+Inicial:
 
-TRADING_MODE=paper
+`TRADING_MODE=paper`
 
-E somente posteriormente permitir:
+Futuro, somente após validação e autorização:
 
-TRADING_MODE=live
-LIVE_TRADING_ENABLED=true
-
-Live trading nunca deve ser ativado automaticamente.
+`TRADING_MODE=live`
+`LIVE_TRADING_ENABLED=true`
 
 ## MICROPOSIÇÃO
 
-DEFAULT/POSITION_SIZE_USD=0.01 é a intenção inicial da estratégia. Se o valor for incompatível com mínimo de ordem, gas, taxas ou slippage, o sistema deve registrar SKIPPED_INSUFFICIENT_ORDER_SIZE e não tentar contornar as regras da plataforma.
+A intenção inicial é uma posição configurável de US$0,01. Se o valor for incompatível com mínimo de ordem, gas, taxas ou slippage, registrar `SKIPPED_INSUFFICIENT_ORDER_SIZE` e não contornar regras da plataforma.
 
 ## CIRCUIT BREAKERS
 
-Obrigatórios:
 - daily loss limit
 - max consecutive losses
 - max gas spend
@@ -124,12 +107,11 @@ Obrigatórios:
 - RPC/API failure limits
 - execution failure limits
 
-Em condição anômala: DO NOT TRADE.
-
 ## EVOLUÇÃO POR FASES
 
-FASE 1 — Discovery e coleta
-FASE 2 — Security Engine
+FASE 0 — Contexto e arquitetura — CONCLUÍDA
+FASE 1 — Discovery e coleta — CONCLUÍDA
+FASE 2 — Security Intelligence — PRÓXIMA
 FASE 3 — Market/On-chain Intelligence
 FASE 4 — Dataset e ML
 FASE 5 — Backtesting
@@ -138,16 +120,25 @@ FASE 7 — Exit Intelligence
 FASE 8 — Restricted Live Micro Trading
 FASE 9 — Continuous Learning
 
+## ESTADO ATUAL — APÓS FASE 1
+
+O Discovery Engine está implementado e validado. Há adapters para GeckoTerminal e DEX Screener, normalização de pools/tokens, deduplicação, isolamento de falha por fonte e persistência no Firebase RTDB.
+
+O GitHub Actions executa testes, smoke test contra APIs reais, persistência e read-after-write no Firebase. A integração GitHub Actions → Firebase foi comprovada com `FIREBASE_CONNECTION=OK`, `FIREBASE_WRITE=OK` e `FIREBASE_READ=OK`.
+
+A execução automática do discovery está configurada para ocorrer a cada 10 minutos, além de `workflow_dispatch`.
+
+Limitação conhecida: agregadores públicos não garantem cobertura literal de todos os tokens recém-criados. A arquitetura deve evoluir para listeners diretos de blockchain/DEX, launchpads e outros indexadores.
+
 ## REGRA PARA QUALQUER NOVO CHAT
 
-Ao continuar este projeto:
-
 1. Leia este arquivo primeiro.
-2. Leia também `ROADMAP.md`, `ARCHITECTURE.md` e `DECISIONS.md` deste diretório.
+2. Leia `ROADMAP.md`, `ARCHITECTURE.md` e `DECISIONS.md`.
 3. Analise o estado real do repositório antes de alterar código.
-4. Não recrie funcionalidades existentes.
-5. Implemente apenas a próxima etapa aprovada.
-6. Teste tudo o que for implementado.
-7. Não habilite trading real sem autorização explícita e sem passar por backtesting, out-of-sample, paper trading e testes de segurança.
-8. Mantenha documentação e decisões técnicas atualizadas.
-9. Ao finalizar uma etapa, registre o que foi feito, testes executados, problemas encontrados e próximo passo.
+4. Identifique a fase atual pelo código e pelos testes, não apenas pela documentação.
+5. Tome autonomamente as decisões técnicas necessárias.
+6. Implemente, teste, valide e corrija sem pedir aprovação para decisões rotineiras.
+7. Só peça intervenção manual quando realmente bloqueado.
+8. Não habilite trading real sem as pré-condições e autorização explícita.
+9. **Atualize sempre esta pasta após cada etapa relevante:** contexto, roadmap, arquitetura/decisões e, quando necessário, um registro de implementação/testes.
+10. Registre o que foi feito, arquivos relevantes, testes executados, resultados, limitações e próximo passo.
