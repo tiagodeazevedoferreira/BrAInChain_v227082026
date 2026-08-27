@@ -7,9 +7,9 @@ from typing import Any
 class SecurityAnalysis:
     network: str
     token_address: str
-    pool_address: str | None
-    symbol: str | None
-    name: str | None
+    pool_address: str | None = None
+    symbol: str | None = None
+    name: str | None = None
     analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     provider_status: dict[str, str] = field(default_factory=dict)
     honeypot: bool | None = None
