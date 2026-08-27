@@ -1,35 +1,51 @@
 # START HERE — Continuação do projeto em um novo chat
 
-## Instrução principal
+## INSTRUÇÃO PRINCIPAL
 
 Você está continuando o desenvolvimento do projeto **Autonomous Crypto Launch Intelligence & Trading** dentro do repositório:
 
 `tiagodeazevedoferreira/BrAInChain_v227082026`
 
-Antes de fazer qualquer alteração:
+### Ordem obrigatória antes de alterar qualquer coisa
 
 1. Leia `CRYPTO_AUTONOMOUS_TRADING/PROJECT_CONTEXT.md`.
 2. Leia `CRYPTO_AUTONOMOUS_TRADING/ROADMAP.md`.
 3. Leia `CRYPTO_AUTONOMOUS_TRADING/ARCHITECTURE.md`.
 4. Leia `CRYPTO_AUTONOMOUS_TRADING/DECISIONS.md`.
 5. Inspecione o estado real do repositório e do código existente.
-6. Identifique em qual fase do roadmap o projeto realmente está.
+6. Identifique a fase atual pelo código, testes e evidências reais.
 7. Não assuma que uma tarefa foi implementada só porque aparece na documentação.
-8. Não habilite trading real.
+8. Não habilite trading real sem as pré-condições e autorização explícita.
 
-## Objetivo do produto
+## PREMISSA DE AUTONOMIA
+
+O agente tem autonomia para tomar decisões técnicas, criar/alterar arquivos, configurar dependências e workflows, executar testes, investigar falhas, corrigir, validar e avançar para a próxima etapa sem pedir decisões rotineiras ao usuário.
+
+O usuário só deve ser acionado quando existir um bloqueio que exija ação manual, como credencial, autorização externa, 2FA/CAPTCHA, conexão de serviço/carteira ou operação que as ferramentas disponíveis não possam executar.
+
+## PREMISSA DE MEMÓRIA PERSISTENTE
+
+A pasta `CRYPTO_AUTONOMOUS_TRADING/` é a memória técnica oficial do projeto.
+
+**Após toda etapa relevante, é obrigatório atualizar esta pasta com o que realmente foi feito.** No mínimo, atualizar quando aplicável:
+
+- `PROJECT_CONTEXT.md` — estado atual e premissas;
+- `ROADMAP.md` — tarefas concluídas e próxima fase;
+- `ARCHITECTURE.md` — mudanças arquiteturais;
+- `DECISIONS.md` — novas decisões/ADRs;
+- `IMPLEMENTATION_LOG.md` — implementação, arquivos, testes, resultados, limitações e próximos passos.
+
+Nunca encerrar uma etapa sem registrar seu estado no GitHub.
+
+## OBJETIVO DO PRODUTO
 
 Criar um sistema que descubra novas criptomoedas, analise segurança, liquidez, on-chain, mercado, wallets/smart money e sinais sociais; use Machine Learning para estimar oportunidades de crescimento extremo e risco; faça backtesting e paper trading; e, somente após validação rigorosa e autorização explícita, seja capaz de realizar microoperações automatizadas e gerenciar suas saídas.
 
-## Estratégia conceitual
-
-O sistema deve buscar oportunidades assimétricas, não prever o mercado com certeza.
-
-Pipeline:
+## PIPELINE
 
 `DISCOVERY → SECURITY → INTELLIGENCE → FEATURES → ML → RISK/OPPORTUNITY → DECISION → PAPER → EXIT → LEARNING`
 
-## Princípios inegociáveis
+## PRINCÍPIOS INEGOCIÁVEIS
 
 - Segurança precede oportunidade.
 - ML alto não supera risco crítico.
@@ -39,46 +55,41 @@ Pipeline:
 - Nunca contornar regras de DEX/CEX.
 - Private keys nunca no código ou Git.
 - Live trading nunca é ativado automaticamente.
-- Não tentar detectar o pico exato; tratar saída como detecção probabilística de reversão.
-- ML deve usar validação temporal e evitar leakage/survivorship bias.
-- Modelos em produção não podem se substituir automaticamente sem validação/aprovação.
+- O pico não é conhecido antecipadamente; saída é detecção probabilística de reversão.
+- ML usa validação temporal e evita leakage/survivorship bias.
+- Modelos em produção não se substituem automaticamente sem validação/aprovação.
 - Toda decisão deve ser auditável e reproduzível.
 
-## Estado atual
+## ESTADO ATUAL
 
 **Fase 1 — Token Discovery: CONCLUÍDA.**
 
-Já existe código funcional em `crypto_discovery/` com:
-- adapter GeckoTerminal para novos pools;
-- adapter DEX Screener para descoberta complementar;
-- modelo normalizado `DiscoveredPool`;
-- deduplicação e isolamento de falhas;
-- persistência em Firebase RTDB;
-- testes unitários;
-- smoke test contra APIs reais;
-- GitHub Actions a cada 10 minutos;
-- verificação read-after-write no Firebase.
+Existe código funcional em `crypto_discovery/` com adapters para GeckoTerminal e DEX Screener, modelo normalizado `DiscoveredPool`, deduplicação, isolamento de falhas, persistência Firebase RTDB, testes, smoke test contra APIs reais, GitHub Actions a cada 10 minutos e read-after-write no Firebase.
 
-A última validação operacional do workflow foi concluída com sucesso: testes, descoberta real, persistência Firebase e leitura de verificação passaram.
+A integração GitHub Actions → Firebase foi validada operacionalmente com conexão, escrita e leitura bem-sucedidas.
 
-## Próxima ação esperada
+**Próxima fase: Fase 2 — Security Intelligence.**
 
-**Executar a Fase 2 — Security Intelligence de ponta a ponta.**
+## PRÓXIMA AÇÃO
 
-Primeiro analise as melhores fontes disponíveis e a compatibilidade com as redes/DEXs descobertas na Fase 1. Depois implemente adapters e um Security Engine modular para:
+Executar a Fase 2 de ponta a ponta. Antes de implementar, pesquisar/avaliar as fontes disponíveis e sua compatibilidade com as redes/DEXs descobertas. Implementar um Security Engine modular e auditável para inspeção de contrato, honeypot detection, taxes/permissions, proxy/upgradeability, holder concentration, liquidity lock/removal e Scam/Rug Pull Risk Score.
 
-1. inspeção de contrato;
-2. honeypot detection;
-3. tax/permission analysis;
-4. proxy/upgradeability analysis;
-5. holder concentration;
-6. liquidity lock/removal;
-7. Scam/Rug Pull Risk Score.
+Não implementar compra real nesta fase.
 
-Não implementar compra real nesta fase. O resultado deve ser um `SecurityAnalysis` auditável e persistido, que será usado como gate obrigatório pelas fases posteriores.
+## CRITÉRIO DE CONCLUSÃO DE UMA ETAPA
 
-## Critério de continuidade
+Uma etapa só é concluída quando:
 
-Quando este arquivo for usado em um novo chat, o agente deve ser capaz de reconstruir o contexto do projeto sem depender do histórico da conversa anterior.
+1. código funcional foi criado/alterado;
+2. testes relevantes foram executados;
+3. resultados foram analisados;
+4. falhas foram corrigidas quando possível;
+5. integração foi validada quando aplicável;
+6. documentação desta pasta foi atualizada;
+7. roadmap foi atualizado;
+8. limitações conhecidas foram registradas;
+9. próximo passo ficou definido.
 
-Após cada etapa, atualizar o roadmap e as decisões técnicas relevantes.
+## CONTINUIDADE
+
+Ao abrir um novo chat, leia este arquivo e os quatro documentos relacionados antes de trabalhar. Use o estado real do GitHub como fonte de verdade e continue da próxima etapa sem depender do histórico do chat anterior.
