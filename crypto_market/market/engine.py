@@ -11,7 +11,7 @@ class IntelligenceEngine:
         self.market_provider = market_provider
         self.trade_provider = trade_provider
 
-    def analyze(self, network: str, token_address: str, pool_address: str) -> IntelligenceAnalysis:
+    def analyze(self, network: str, token_address: str, pool_address: str, security_trade_gate: str | None = None) -> IntelligenceAnalysis:
         flags: list[str] = []
         provider_status = {"market": "unknown", "trades": "not_configured", "holders": "not_configured"}
         features = {}
@@ -66,8 +66,14 @@ class IntelligenceEngine:
             manipulation += 10
         manipulation = min(100.0, manipulation)
 
-        # Phase 3 is intelligence, not trading. A provider gap never becomes a positive signal.
-        if liquidity < 10:
+        # Security has precedence over market opportunity.
+        if security_trade_gate == "DO_NOT_TRADE":
+            decision = "DO_NOT_TRADE"
+            flags.append("SECURITY_GATE")
+        elif security_trade_gate is None:
+            decision = "DO_NOT_TRADE"
+            flags.append("SECURITY_STATE_UNKNOWN")
+        elif liquidity < 10:
             decision = "DO_NOT_TRADE"
             flags.append("LIQUIDITY_GATE")
         elif manipulation >= 70:
