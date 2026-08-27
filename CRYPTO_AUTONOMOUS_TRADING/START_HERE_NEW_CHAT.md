@@ -26,25 +26,15 @@ O usuário só deve ser acionado quando existir um bloqueio que exija ação man
 
 ## PREMISSA DE MEMÓRIA PERSISTENTE
 
-A pasta `CRYPTO_AUTONOMOUS_TRADING/` é a memória técnica oficial do projeto.
-
-**Após toda etapa relevante, é obrigatório atualizar esta pasta com o que realmente foi feito.** No mínimo, atualizar quando aplicável:
-
-- `PROJECT_CONTEXT.md` — estado atual e premissas;
-- `ROADMAP.md` — tarefas concluídas e próxima fase;
-- `ARCHITECTURE.md` — mudanças arquiteturais;
-- `DECISIONS.md` — novas decisões/ADRs;
-- `IMPLEMENTATION_LOG.md` — implementação, arquivos, testes, resultados, limitações e próximos passos.
-
-Nunca encerrar uma etapa sem registrar seu estado no GitHub.
+A pasta `CRYPTO_AUTONOMOUS_TRADING/` é a memória técnica oficial do projeto. Após toda etapa relevante, ela deve ser atualizada com estado real, decisões, testes, limitações e próximo passo.
 
 ## OBJETIVO DO PRODUTO
 
-Criar um sistema que descubra novas criptomoedas, analise segurança, liquidez, on-chain, mercado, wallets/smart money e sinais sociais; use Machine Learning para estimar oportunidades de crescimento extremo e risco; faça backtesting e paper trading; e, somente após validação rigorosa e autorização explícita, seja capaz de realizar microoperações automatizadas e gerenciar suas saídas.
+Criar um sistema independente que descubra novas criptomoedas, analise segurança, liquidez, on-chain, mercado, wallets/smart money e sinais sociais; use Machine Learning para estimar oportunidades de crescimento extremo e risco; faça backtesting e paper trading; e, somente após validação rigorosa e autorização explícita, seja capaz de realizar microoperações automatizadas e gerenciar suas saídas.
 
 ## PIPELINE
 
-`DISCOVERY → SECURITY → INTELLIGENCE → FEATURES → ML → RISK/OPPORTUNITY → DECISION → PAPER → EXIT → LEARNING`
+`DISCOVERY → SECURITY → INTELLIGENCE → HISTORICAL DATA → FEATURES → LABELS → ML → VALIDATION → RISK/OPPORTUNITY → BACKTEST → PAPER → EXIT → LEARNING`
 
 ## PRINCÍPIOS INEGOCIÁVEIS
 
@@ -66,50 +56,36 @@ Criar um sistema que descubra novas criptomoedas, analise segurança, liquidez, 
 
 **Fase 1 — Token Discovery: CONCLUÍDA.**
 
-`crypto_discovery/` possui GeckoTerminal + DEX Screener, normalização, deduplicação, isolamento de falhas, Firebase RTDB, testes, smoke test e workflow periódico.
-
 **Fase 2 — Security Intelligence: CONCLUÍDA E VALIDADA.**
 
-`crypto_security/` possui `SecurityAnalysis`, Honeypot.is, taxes/simulation, holder failures/siphoning, contract verification, proxy analysis, holder concentration, GoPlus opcional, deterministic risk score, hard `DO_NOT_TRADE`, Firebase persistence, incremental runner, testes e workflow validado.
+**Fase 3 — Market & On-chain Intelligence: IMPLEMENTADA.**
 
-**Fase 3 — Market & On-chain Intelligence: IMPLEMENTADA; validação corretiva do CI em andamento.**
+**Fase 4 — Dataset & Machine Learning: IMPLEMENTADA; CI próprio configurado.**
 
-`crypto_market/` possui:
-- DEX Screener market provider;
-- GeckoTerminal trade provider;
-- price/volume/liquidity metrics;
-- buy/sell pressure;
-- momentum/price acceleration;
-- unique trader activity quando disponível;
-- whale concentration proxy;
-- smart-money behavior proxy;
-- pump/manipulation heuristics;
-- fail-closed behavior;
-- bounded Firebase latest-state persistence;
-- unit/engine tests;
-- workflow periódico e manual.
+`crypto_ml/` possui:
+- contrato `Snapshot` para observações históricas;
+- storage append-only JSONL fora do Firebase;
+- labels forward-looking de 1h/6h/24h/72h;
+- classes +10/+25/+50/+100/+500/+1000% e `RUG_OR_COLLAPSE`;
+- `UNKNOWN` quando o futuro ainda não está disponível;
+- feature engineering baseado somente em informação disponível no instante da decisão;
+- readiness gate;
+- baseline Random Forest balanceado;
+- testes e workflow `crypto-ml.yml`.
 
-Holder growth permanece `null` até existir um baseline/historical dataset adequado. Smart-money permanece um proxy até existir histórico de wallets e resultados.
+O baseline não é um modelo de produção. Walk-forward, calibração, OOS, estabilidade e backtesting econômico ainda são obrigatórios antes de qualquer promoção.
 
 ## PRÓXIMA AÇÃO
 
-Após a validação operacional da Fase 3, executar **Fase 4 — Dataset & Machine Learning**, começando pela arquitetura de armazenamento histórico fora do Firebase, dataset builder, multi-horizon labels e baseline ML com validação temporal.
+**Fase 5 — Backtesting temporal/event-driven.**
+
+Implementar simulação realista de entrada/saída com fees, gas, slippage, latency, failed transactions, liquidity constraints e métricas econômicas/risk-adjusted.
 
 Não implementar compra real.
 
-## CRITÉRIO DE CONCLUSÃO DE UMA ETAPA
+## CRITÉRIO DE CONCLUSÃO
 
-Uma etapa só é concluída quando:
-
-1. código funcional foi criado/alterado;
-2. testes relevantes foram executados;
-3. resultados foram analisados;
-4. falhas foram corrigidas quando possível;
-5. integração foi validada quando aplicável;
-6. documentação desta pasta foi atualizada;
-7. roadmap foi atualizado;
-8. limitações conhecidas foram registradas;
-9. próximo passo ficou definido.
+Uma etapa só é concluída operacionalmente quando código, testes, resultados, integração quando aplicável e documentação estiverem atualizados. Uma implementação pode existir antes da validação; nesse caso o estado deve permanecer explicitamente pendente.
 
 ## CONTINUIDADE
 
