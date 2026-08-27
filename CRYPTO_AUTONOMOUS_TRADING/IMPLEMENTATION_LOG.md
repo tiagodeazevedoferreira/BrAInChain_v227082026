@@ -4,128 +4,76 @@ Este arquivo registra as etapas concluídas para permitir continuidade do projet
 
 ## 2026-08-27 — Fase 0 / preparação
 
-### Feito
 - Criada `CRYPTO_AUTONOMOUS_TRADING/` como memória técnica persistente.
-- Criados contexto, roadmap, arquitetura, decisões e instruções de continuidade.
-- Estabelecida autonomia de desenvolvimento.
-- Estabelecida obrigatoriedade de atualizar esta pasta após cada etapa relevante.
-
-### Infraestrutura
+- Estabelecida autonomia de desenvolvimento e atualização obrigatória da documentação.
 - Firebase Realtime Database configurado para uso pelo GitHub Actions.
-- Workflow `.github/workflows/test-firebase.yml` criado.
-
-### Validação
-- `FIREBASE_CONNECTION=OK`
-- `FIREBASE_WRITE=OK`
-- `FIREBASE_READ=OK`
+- `test-firebase.yml` validado com `FIREBASE_CONNECTION=OK`, `FIREBASE_WRITE=OK`, `FIREBASE_READ=OK`.
 
 ## 2026-08-27 — Fase 1 / Token Discovery
 
 Implementado `crypto_discovery/` com GeckoTerminal, DEX Screener, normalização, deduplicação, tolerância a falhas, Firebase, testes, smoke test, read-after-write e workflow automático/manual.
 
-### Resultado
-Fase 1 validada pelo usuário em execução real.
+**Resultado:** Fase 1 validada pelo usuário em execução real.
 
 ## 2026-08-27 — Fase 2 / Security Intelligence
 
-Implementado `crypto_security/` com SecurityAnalysis, Honeypot.is, taxes, simulation, holder analysis, source/proxy analysis, GoPlus opcional, deterministic risk score, hard `DO_NOT_TRADE`, Firebase, incremental processing, testes e CI.
+Implementado `crypto_security/` com Honeypot.is, taxes, simulation, holder analysis, source/proxy analysis, GoPlus opcional, deterministic risk score, hard `DO_NOT_TRADE`, Firebase incremental, testes e CI.
 
-### Correções e validação
-Os primeiros commits da Fase 2 falharam por isolamento incorreto de testes e metadados opcionais. Corrigidos.
-
-Workflow **#8 / 33116891066**:
-- `test` → success;
-- `security-scan` → success;
-- `SECURITY_INPUT=25`;
-- `SECURITY_ANALYZED=25`;
-- `SECURITY_DO_NOT_TRADE=25`;
-- `SECURITY_CRITICAL=0`;
-- `SECURITY_PIPELINE=OK`.
+Primeiros problemas de isolamento de testes e metadados opcionais foram corrigidos. Workflow validado com `test` e `security-scan` success e pipeline `OK`.
 
 ## 2026-08-27 — Fase 3 / Market & On-chain Intelligence
 
-Implementado `crypto_market/` com:
-- MarketObservation e TradeObservation;
-- DEX Screener market provider;
-- GeckoTerminal trade provider;
-- buy/sell pressure;
-- momentum e price acceleration proxy;
-- liquidity score/turnover;
-- unique traders;
-- whale concentration proxy;
-- smart-money proxy;
-- manipulation heuristics;
-- provider failure isolation;
-- fail-closed decision;
-- bounded Firebase latest state.
+Implementado `crypto_market/` com MarketObservation, TradeObservation, DEX Screener, GeckoTerminal, buy/sell pressure, momentum, acceleration, liquidity/turnover, traders, whale concentration proxy, smart-money proxy, manipulation heuristics, provider failure isolation, fail-closed e bounded Firebase state.
 
-### Testes e correção
-O primeiro CI encontrou expectativa incorreta no teste de concentração de whale. O teste foi corrigido para refletir que maior concentração implica maior risco e score menor.
+Teste de concentração de whale foi corrigido para refletir que concentração maior significa maior risco.
 
 ## 2026-08-27 — Fase 4 / Dataset & Machine Learning
 
-Implementado `crypto_ml/` com:
-- `MLSample`;
-- storage JSONL append-only fora do Firebase;
-- labels forward-looking;
-- classes de crescimento +10/+25/+50/+100/+500/+1000% e crash;
-- `UNKNOWN` quando futuro não existe;
-- feature extraction no tempo da decisão;
-- readiness gate;
-- baseline de pesquisa;
-- testes;
-- workflow `.github/workflows/crypto-ml.yml`.
+Implementado `crypto_ml/` com `MLSample`, storage JSONL fora do Firebase, labels forward-looking, classes de crescimento/crash, feature extraction no tempo da decisão, readiness gate e baseline de pesquisa.
 
-### Validação
-O workflow foi executado manualmente pelo usuário e confirmado como verde.
+Workflow `.github/workflows/crypto-ml.yml` executado manualmente pelo usuário e confirmado verde.
 
 ## 2026-08-27 — Fase 5 / Backtesting
 
-Implementado `crypto_backtest/` com:
-- event-driven backtester;
-- fees;
-- gas;
-- slippage;
-- security/score/liquidity gates;
-- trade journal;
-- PnL e métricas de resumo;
-- testes;
-- workflow `.github/workflows/crypto-backtest.yml`.
+Implementado `crypto_backtest/` com event-driven backtester, fees, gas, slippage, security/score/liquidity gates, trade journal e métricas de PnL.
 
-### Validação
-O workflow foi executado manualmente pelo usuário e confirmado como verde.
+Workflow `.github/workflows/crypto-backtest.yml` executado manualmente pelo usuário e confirmado verde.
 
 ## 2026-08-27 — Fase 6 / Paper Trading
 
+Implementado `crypto_paper/` como camada exclusivamente simulada, com sinais, buy/close, ledger, PnL, fees, slippage, gates, limites de exposição, daily/consecutive loss breakers, logging e monitoramento. Nenhum signer, RPC sender, DEX router ou credencial de exchange foi incluído.
+
+Workflow `Crypto Paper Trading` executado manualmente pelo usuário e confirmado verde.
+
+## 2026-08-27 — Fase 7 / Exit Intelligence
+
+Implementado `crypto_exit/` com trailing stop, dynamic take profit + reversal confirmation, momentum/volume reversal, whale exit signal contract, liquidity deterioration, crash protection, time stop, exit score e peak capture.
+
+Workflow `Crypto Exit Intelligence` executado manualmente pelo usuário e confirmado verde.
+
+## 2026-08-27 — Fase 8 / Restricted Live Micro Trading
+
 ### Implementado
-Criado `crypto_paper/` como camada exclusivamente simulada:
-- `PaperSignal`;
-- `PaperConfig`;
-- `PaperPosition` e conta;
-- `PaperExecutor` para buy/close simulados;
-- fees e slippage;
-- security hard gate;
-- liquidity/opportunity gates;
-- max open positions;
-- max exposure;
-- daily loss circuit breaker;
-- consecutive-loss circuit breaker;
-- ledger append-only em JSONL fora do Firebase;
-- monitoramento de posições e PnL;
-- logging de eventos operacionais;
-- workflow `.github/workflows/crypto-paper.yml`;
-- testes unitários.
 
-### Segurança
-A Fase 6 não possui private keys, signer, RPC transaction sender, DEX router ou credenciais de exchange. Nenhuma ordem real pode ser enviada por este módulo.
+Criado `crypto_live/` como **fronteira de segurança para futura execução live**, sem habilitar nem enviar ordens reais.
 
-### Armazenamento
-O histórico de paper trading permanece fora do Firebase. O RTDB continua reservado a estado operacional atual e agregado limitado.
+Componentes:
+- `LiveConfig` com limites de posição, exposição, gas, slippage e perdas;
+- `Evidence` e preflight independente;
+- gates para backtest, out-of-sample, paper, security, failure tests, secrets e autorização do proprietário;
+- `LiveExecutor` fail-closed;
+- workflow `.github/workflows/crypto-live.yml` com testes e verificação de que o transporte real permanece bloqueado.
+
+### Decisão crítica
+
+Mesmo que a configuração seja alterada para `live`, o executor retorna `BLOCKED` enquanto não existir um **approved venue adapter** separado e revisado. Isso impede que uma configuração acidental se transforme em movimentação de dinheiro real.
 
 ### Estado
-**Implementação da Fase 6 concluída. Validação operacional do workflow ainda pendente.**
+
+**Fase 8 implementada; validação operacional do workflow pendente.**
+
+CI verde nesta fase comprovará somente a integridade da fronteira de segurança. Não comprova rentabilidade e não constitui autorização para trading real.
 
 ### Próximo passo
-Executar o workflow `Crypto Paper Trading`, corrigir eventuais falhas e, somente após CI verde, considerar a Fase 6 operacionalmente validada. Depois disso: Fase 7 — Exit Intelligence.
 
-Trading real permanece desabilitado.
+Executar manualmente `Crypto Restricted Live Safety Gate`. Depois do CI verde, o próximo trabalho deve ser produzir evidência empírica robusta de out-of-sample e paper trading e somente então avaliar a criação de um adapter de venue sob autorização explícita.
