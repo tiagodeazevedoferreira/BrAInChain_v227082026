@@ -7,9 +7,10 @@ Event-driven, modular, adapter-based architecture. Data ingestion, intelligence,
 ## Current implementation status
 
 - Discovery layer: implemented in `crypto_discovery/`.
-- Security layer: implemented in `crypto_security/`.
-- Firebase persistence: implemented for discovery and security.
-- GitHub Actions: discovery and security automation.
+- Security layer: implemented in `crypto_security/` and validated operationally.
+- Market/on-chain intelligence: implemented in `crypto_market/` with current-state persistence and provider failure isolation.
+- Firebase persistence: operational state only; no unbounded historical snapshots.
+- GitHub Actions: discovery, security and market-intelligence automation.
 - ML/execution: not implemented yet.
 
 ## Logical pipeline
@@ -26,11 +27,12 @@ Blockchain / DEX / Social Sources
             +----------------+
             |                |
             v                v
-      Security        Intelligence
-                         |   |   |
-                         |   |   +-- Social
-                         |   +------ Market
-                         +---------- On-chain/Wallets
+      Security        Market/On-chain Intelligence
+                         |   |   |   |
+                         |   |   |   +-- Wallet activity
+                         |   |   +------ Trade pressure
+                         |   +---------- Market metrics
+                         +-------------- Liquidity/momentum
             |
             v
      Feature Engineering
@@ -67,6 +69,32 @@ Blockchain / DEX / Social Sources
                     v
              Learning / MLOps
 ```
+
+## Implemented Phase 3 — Market & On-chain Intelligence
+
+`crypto_market/` contains:
+
+- `MarketObservation` and `TradeObservation` normalized models;
+- DEX Screener market adapter using documented pair endpoints;
+- GeckoTerminal trade adapter using documented pool-trade endpoints;
+- price, volume, liquidity and transaction metrics;
+- buy/sell pressure;
+- momentum and price-acceleration proxies;
+- liquidity turnover;
+- unique trader/wallet activity when provider data exposes trader addresses;
+- largest-trade concentration / whale-risk proxy;
+- net-buy / smart-money proxy;
+- pump/manipulation heuristics;
+- fail-closed provider handling;
+- bounded Firebase sink storing only latest market state;
+- unit and engine tests;
+- GitHub Actions workflow every 10 minutes plus manual dispatch.
+
+### Explicit data gaps
+
+- Holder growth requires two observations of holder count. The current security layer has a point-in-time holder count, but Firebase is intentionally not used as a historical data lake. A bounded baseline or external historical dataset will be introduced with the dataset phase.
+- Smart-money score is currently a proxy from trade behavior, not a claim of wallet profitability. Historical wallet performance will require a dedicated dataset.
+- Whale detection is currently trade-concentration based, not full holder concentration analytics; security provides complementary holder concentration.
 
 ## Implemented Security Intelligence
 
@@ -154,6 +182,8 @@ Core entities:
 - Wallet
 - WalletEvent
 - SecurityAnalysis
+- MarketObservation
+- TradeObservation
 - SocialMetric
 - MLPrediction
 - Signal
@@ -163,6 +193,12 @@ Core entities:
 - ModelVersion
 - BacktestRun
 - SystemEvent
+
+## Storage policy
+
+Firebase Realtime Database is an operational state store, not the historical ML data lake. Discovery, security and market modules write current state plus bounded aggregate status. They must not append unbounded per-run snapshots to RTDB.
+
+Historical observations required for ML/backtesting must use a dedicated dataset storage strategy with explicit retention, partitioning, size monitoring and migration/archival controls.
 
 ## Security boundaries
 
@@ -180,7 +216,7 @@ The default behavior for stale data, uncertain contract state, abnormal liquidit
 
 Backend: Python, FastAPI, Pydantic, SQLAlchemy.
 
-Data: PostgreSQL, Redis, Polars/Pandas.
+Data: PostgreSQL, Redis, Polars/Pandas, partitioned Parquet/object storage/DuckDB for historical datasets.
 
 ML: LightGBM/XGBoost, PyTorch.
 
@@ -190,4 +226,4 @@ Frontend: React/Next.js/TypeScript.
 
 Deployment: Docker and GitHub Actions.
 
-These are candidate technologies, not immutable requirements; existing BrAInChain architecture must be analyzed before introducing duplicates or incompatible infrastructure.
+These are candidate technologies, not immutable requirements; the current repository is the source of truth for implementation decisions.
