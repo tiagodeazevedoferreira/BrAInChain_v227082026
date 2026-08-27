@@ -2,22 +2,35 @@
 
 ## Status
 
-Planejamento inicial. Nenhuma funcionalidade de trading real deve ser considerada implementada por este documento.
+**Fase 1 concluída.** O discovery engine está implementado, testado em CI, executado contra APIs externas e validado com persistência + leitura no Firebase.
 
 ## Fase 0 — Contexto e arquitetura
 - [x] Criar documentação de contexto
-- [ ] Analisar código existente do BrAInChain antes de integrar qualquer módulo
-- [ ] Definir limites entre componentes existentes e novo domínio crypto
-- [ ] Definir ADRs de arquitetura
+- [x] Analisar código existente do BrAInChain antes de integrar qualquer módulo
+- [x] Definir limites entre componentes existentes e novo domínio crypto
+- [x] Definir decisões arquiteturais / ADRs
 
-## Fase 1 — Token Discovery
-- [ ] Blockchain adapter interface
-- [ ] DEX adapter interface
-- [ ] Detecção de novos contratos/tokens
-- [ ] Detecção de novos pools/pares
-- [ ] Normalização de token metadata
-- [ ] Persistência inicial
-- [ ] Testes e observabilidade
+## Fase 1 — Token Discovery — CONCLUÍDA
+- [x] Blockchain/data-provider adapter interface
+- [x] DEX discovery adapter interface
+- [x] Detecção de novos contratos/tokens
+- [x] Detecção de novos pools/pares
+- [x] Normalização de token metadata
+- [x] Persistência inicial no Firebase RTDB
+- [x] Deduplicação entre fontes
+- [x] Isolamento de falha por fonte
+- [x] Testes unitários de modelo e adapters
+- [x] Smoke test contra APIs reais
+- [x] Verificação read-after-write no Firebase
+- [x] Execução automatizada a cada 10 minutos
+
+Implementação atual:
+- GeckoTerminal: novos pools across supported networks, com paginação pública configurável.
+- DEX Screener: latest token profiles + pair lookup como fonte complementar.
+- Firebase: `discovery/status` e `discovery/tokens/*`.
+- GitHub Actions: testes, smoke test, persistência e read-after-write.
+
+Limitação conhecida: nenhum agregador público garante cobertura de literalmente todas as moedas recém-criadas em todas as blockchains. A arquitetura usa múltiplos adapters para permitir adicionar listeners diretos de blockchain, DEXs, launchpads e outros indexadores.
 
 ## Fase 2 — Security Intelligence
 - [ ] Contract inspection
