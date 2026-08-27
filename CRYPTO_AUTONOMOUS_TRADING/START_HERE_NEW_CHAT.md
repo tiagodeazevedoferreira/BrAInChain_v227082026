@@ -12,10 +12,11 @@ Você está continuando o desenvolvimento do projeto **Autonomous Crypto Launch 
 2. Leia `CRYPTO_AUTONOMOUS_TRADING/ROADMAP.md`.
 3. Leia `CRYPTO_AUTONOMOUS_TRADING/ARCHITECTURE.md`.
 4. Leia `CRYPTO_AUTONOMOUS_TRADING/DECISIONS.md`.
-5. Inspecione o estado real do repositório e do código existente.
-6. Identifique a fase atual pelo código, testes e evidências reais.
-7. Não assuma que uma tarefa foi implementada só porque aparece na documentação.
-8. Não habilite trading real sem as pré-condições e autorização explícita.
+5. Leia `CRYPTO_AUTONOMOUS_TRADING/IMPLEMENTATION_LOG.md`.
+6. Inspecione o estado real do repositório e do código existente.
+7. Identifique a fase atual pelo código, testes e evidências reais.
+8. Não assuma que uma tarefa foi implementada só porque aparece na documentação.
+9. Não habilite trading real sem as pré-condições e autorização explícita.
 
 ## PREMISSA DE AUTONOMIA
 
@@ -64,17 +65,35 @@ Criar um sistema que descubra novas criptomoedas, analise segurança, liquidez, 
 
 **Fase 1 — Token Discovery: CONCLUÍDA.**
 
-Existe código funcional em `crypto_discovery/` com adapters para GeckoTerminal e DEX Screener, modelo normalizado `DiscoveredPool`, deduplicação, isolamento de falhas, persistência Firebase RTDB, testes, smoke test contra APIs reais, GitHub Actions a cada 10 minutos e read-after-write no Firebase.
+`crypto_discovery/` possui GeckoTerminal + DEX Screener, normalização, deduplicação, isolamento de falhas, Firebase RTDB, testes, smoke test e workflow periódico.
 
-A integração GitHub Actions → Firebase foi validada operacionalmente com conexão, escrita e leitura bem-sucedidas.
+**Fase 2 — Security Intelligence: IMPLEMENTADA / EM VALIDAÇÃO OPERACIONAL.**
 
-**Próxima fase: Fase 2 — Security Intelligence.**
+`crypto_security/` possui:
+- `SecurityAnalysis` auditável;
+- Honeypot.is simulation/honeypot;
+- taxes e simulation status;
+- holder sell failures/siphoning;
+- contract source verification;
+- proxy/proxy-call analysis;
+- top-holder/top-5 concentration;
+- optional GoPlus adapter;
+- deterministic risk score;
+- hard `DO_NOT_TRADE` gate;
+- Firebase persistence;
+- incremental runner;
+- unit/integration tests;
+- GitHub Actions periódico e por alteração.
+
+A Fase 2 ainda precisa de confirmação operacional do workflow contra os tokens atuais do Firebase. O agente desta sessão não dispõe de uma ação GitHub para disparar `workflow_dispatch`; o workflow possui disparo automático e manual no próprio GitHub.
 
 ## PRÓXIMA AÇÃO
 
-Executar a Fase 2 de ponta a ponta. Antes de implementar, pesquisar/avaliar as fontes disponíveis e sua compatibilidade com as redes/DEXs descobertas. Implementar um Security Engine modular e auditável para inspeção de contrato, honeypot detection, taxes/permissions, proxy/upgradeability, holder concentration, liquidity lock/removal e Scam/Rug Pull Risk Score.
+**Fase 3 — Market & On-chain Intelligence.**
 
-Não implementar compra real nesta fase.
+Antes de implementar, analisar os dados que já existem na descoberta e as melhores fontes disponíveis. Construir adapters e pipelines para preço/volume, crescimento de holders, pressão de compra/venda, atividade de wallets, whales, smart money, momentum, volatilidade, liquidez e detecção de pump/manipulação.
+
+Não implementar compra real.
 
 ## CRITÉRIO DE CONCLUSÃO DE UMA ETAPA
 
@@ -92,4 +111,4 @@ Uma etapa só é concluída quando:
 
 ## CONTINUIDADE
 
-Ao abrir um novo chat, leia este arquivo e os quatro documentos relacionados antes de trabalhar. Use o estado real do GitHub como fonte de verdade e continue da próxima etapa sem depender do histórico do chat anterior.
+Ao abrir um novo chat, leia este arquivo e os documentos relacionados antes de trabalhar. Use o estado real do GitHub como fonte de verdade e continue da próxima etapa sem depender do histórico do chat anterior.
