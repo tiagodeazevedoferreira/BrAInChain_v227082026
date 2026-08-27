@@ -39,10 +39,6 @@ Implementado o módulo `crypto_discovery/` com:
 - workflow automatizado a cada 10 minutos;
 - execução manual via `workflow_dispatch`.
 
-### Persistência
-- `discovery/status`
-- `discovery/tokens/*`
-
 ### Resultado
 A Fase 1 foi considerada concluída após testes, execução real das fontes e validação da persistência/leitura no Firebase.
 
@@ -51,74 +47,87 @@ A Fase 1 foi considerada concluída após testes, execução real das fontes e v
 ### Implementado
 Criado `crypto_security/` com:
 - `SecurityAnalysis` auditável;
-- `HoneypotProvider` para `/v2/IsHoneypot`;
-- `contract_verification` via `/v2/GetContractVerification`;
-- top holders via `/v1/TopHolders`;
-- adapter opcional `GoPlusProvider` via `GOPLUS_ACCESS_TOKEN`;
-- análise de honeypot;
-- buy/sell/transfer taxes;
-- simulation success/failure;
-- holder sell failures e siphoning;
-- source/open-source;
-- proxy/proxy calls;
-- concentração top holder/top 5;
-- scoring determinístico;
-- hard gate `DO_NOT_TRADE`;
-- persistência em `security/tokens/*`;
-- `security/status` com contagens de risco;
-- processamento incremental de tokens ainda não analisados.
+- Honeypot.is;
+- contract verification;
+- top holders;
+- GoPlus opcional;
+- taxes, simulation, sell failures/siphoning;
+- source/proxy analysis;
+- holder concentration;
+- deterministic risk score;
+- hard `DO_NOT_TRADE` gate;
+- Firebase persistence;
+- incremental processing;
+- tests e GitHub Actions.
 
 ### Correções após CI
-Os primeiros quatro commits relacionados à Fase 2 apresentaram falhas no GitHub Actions.
+Os primeiros quatro commits da Fase 2 falharam. A primeira causa foi coleta de testes fora do pacote da fase; a segunda foi ausência de defaults em metadados opcionais do modelo. Ambas foram corrigidas.
 
-Causa 1: o job de testes executava `pytest` a partir da raiz do repositório e acabava coletando também os testes de `crypto_discovery`, sem instalar o pacote `discovery` nesse job. Isso causou `ModuleNotFoundError: No module named 'discovery'`.
-
-Correção: o job de Security Intelligence passou a usar `working-directory: crypto_security` e `python -m pytest -q` apenas sobre os testes da Fase 2.
-
-Causa 2: os testes de scoring criavam `SecurityAnalysis` somente com `network`, `token_address` e alguns campos opcionais, enquanto `pool_address`, `symbol` e `name` eram obrigatórios no dataclass.
-
-Correção: esses metadados passaram a ter default `None`, mantendo `network` e `token_address` como campos obrigatórios.
-
-### Validação automatizada final
-Workflow run **#8** (`33116891066`) terminou com sucesso nos dois jobs:
-- `test` → `success`;
-- `security-scan` → `success`.
-
-Resultado operacional do Security Engine:
+### Validação operacional
+Workflow **#8 / 33116891066**:
+- `test` → success;
+- `security-scan` → success;
 - `SECURITY_INPUT=25`;
 - `SECURITY_ANALYZED=25`;
 - `SECURITY_DO_NOT_TRADE=25`;
 - `SECURITY_CRITICAL=0`;
 - `SECURITY_PIPELINE=OK`.
 
-A credencial Firebase foi criada temporariamente no runner e removida com sucesso ao final.
+## 2026-08-27 — Fase 3 / Market & On-chain Intelligence
 
-O resultado `DO_NOT_TRADE=25` não significa que os 25 tokens foram classificados como honeypots. Significa que, com as regras conservadoras atuais, todos permaneceram bloqueados para negociação. Isso é esperado para esta fase, pois segurança desconhecida, liquidez/lock insuficientemente comprovados ou risco acima do limiar impedem execução.
+### Objetivo
+Enriquecer cada token descoberto com sinais atuais de mercado, fluxo de trades e atividade de wallets, sem inventar dados ausentes e sem transformar o Firebase em data lake.
 
-### Testes criados
-- `crypto_security/tests/test_scoring.py`
-- `crypto_security/tests/test_engine.py`
+### Implementado
+Novo pacote `crypto_market/`:
 
-Os testes cobrem hard block de honeypot, comportamento fail-safe para estado desconhecido, concentração e integração do engine com providers simulados.
+- `MarketObservation` — modelo normalizado de estado de mercado;
+- `TradeObservation` — modelo normalizado de trade;
+- `DexScreenerMarketProvider` — preço, liquidez, volume, transações, price change, FDV/market cap e boosts;
+- `GeckoTerminalTradeProvider` — trades recentes do pool e campos de wallet/transaction quando expostos;
+- buy/sell pressure;
+- momentum;
+- price acceleration proxy;
+- liquidity score;
+- liquidity turnover;
+- unique trader activity;
+- largest-trade concentration / whale-risk proxy;
+- net-buy / smart-money proxy;
+- pump/manipulation risk heuristics;
+- provider failure isolation;
+- fail-closed `DO_NOT_TRADE` quando a inteligência de mercado não pode ser obtida ou quando há risco extremo;
+- `FirebaseMarketSink` que grava somente o estado mais recente em `market/tokens/*` e um agregado em `market/status`;
+- nenhum histórico ilimitado é gravado no RTDB.
+
+### Fontes
+A implementação usa endpoints documentados do DEX Screener e GeckoTerminal. GeckoTerminal documenta endpoints de trades e OHLCV baseados em trades on-chain; o DEX Screener documenta endpoints de pares com preço, volume, transações, liquidez, price change e outros campos.
+
+### Testes
+Criados:
+- `crypto_market/tests/test_scoring.py`;
+- `crypto_market/tests/test_engine.py`.
+
+O primeiro workflow da Fase 3 encontrou uma expectativa incorreta no teste de concentração de whale (`37.5` era corretamente um score menor por indicar maior concentração). O teste foi corrigido para validar o significado correto do score e a flag `SINGLE_TRADE_CONCENTRATION`.
 
 ### Automação
-`.github/workflows/crypto-security.yml` possui:
-- `workflow_dispatch`;
-- execução a cada 10 minutos;
-- execução em alterações do módulo/documentação;
-- job de testes isolado da Fase 2;
-- job de security scan dependente dos testes;
-- credencial Firebase temporária e removida no final;
-- limite de 25 tokens por ciclo para controlar consumo de provedores.
+`.github/workflows/crypto-market-intelligence.yml`:
+- roda testes em cada alteração de `crypto_market`;
+- roda inteligência a cada 10 minutos;
+- possui `workflow_dispatch`;
+- limita a 25 tokens por ciclo;
+- remove a credencial Firebase temporária ao final;
+- grava apenas estado atual no Firebase.
 
-### Limitações conhecidas
-- Liquidity lock/removal permanece `unknown` sem evidência confiável de locker.
-- Provedores de segurança não substituem auditoria formal.
-- GoPlus é opcional.
-- Chains não suportadas ficam `DO_NOT_TRADE`.
-- Nenhum detector é infalível.
+### Limitações deliberadas
+- `holder_growth_score` permanece `null` porque crescimento exige duas observações e o Firebase não será usado como histórico ilimitado. O baseline será introduzido junto à estratégia de dataset da Fase 4.
+- Smart-money ainda é um proxy comportamental, não uma prova de rentabilidade histórica de uma wallet.
+- Whale detection é baseada em concentração de trades e será complementada por histórico de holders/wallets.
+- Nenhum dado ausente é convertido em sinal positivo.
+
+### Estado
+**Implementação completa da Fase 3 concluída. Validação operacional do workflow corretivo ainda deve terminar antes de marcar a fase como operacionalmente validada.**
 
 ### Próximo passo
-**Fase 3 — Market & On-chain Intelligence.**
+Fase 4 — Dataset & Machine Learning, começando pela estratégia de armazenamento histórico fora do Firebase e pelo dataset/label engine.
 
 Trading real permanece desabilitado.
