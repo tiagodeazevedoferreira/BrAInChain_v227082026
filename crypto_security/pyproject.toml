@@ -1,0 +1,14 @@
+[project]
+name = "brainchain-crypto-security"
+version = "0.1.0"
+description = "Security intelligence engine for newly discovered crypto tokens"
+requires-python = ">=3.11"
+dependencies = ["requests>=2.31,<3"]
+
+[project.optional-dependencies]
+firebase = ["firebase-admin>=6.5,<7"]
+
+test = ["pytest>=8,<9"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
