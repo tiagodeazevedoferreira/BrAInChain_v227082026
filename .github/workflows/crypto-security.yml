@@ -2,6 +2,11 @@ name: Crypto Security Intelligence
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "crypto_security/**"
+      - ".github/workflows/crypto-security.yml"
+      - "CRYPTO_AUTONOMOUS_TRADING/**"
   schedule:
     - cron: "*/10 * * * *"
 
@@ -38,8 +43,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: |
-          python -m pip install --disable-pip-version-check -e 'crypto_security[firebase]'
+        run: python -m pip install --disable-pip-version-check -e 'crypto_security[firebase]'
       - name: Create temporary Firebase credential file
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
