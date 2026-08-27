@@ -2,7 +2,7 @@
 
 ## Status
 
-**Fase 1 concluída. Próxima: Fase 2 — Security Intelligence.**
+**Fase 2 concluída em implementação e validação automatizada; próxima: Fase 3 — Market & On-chain Intelligence.**
 
 ## Regra de governança do projeto
 
@@ -11,43 +11,47 @@ Ao concluir qualquer etapa, atualizar os arquivos desta pasta `CRYPTO_AUTONOMOUS
 O agente possui autonomia para decidir e implementar as soluções técnicas, testar, corrigir e validar. O usuário só deve ser acionado quando uma execução manual for realmente necessária.
 
 ## Fase 0 — Contexto e arquitetura
-- [x] Criar documentação de contexto
-- [x] Analisar código existente do BrAInChain antes de integrar qualquer módulo
-- [x] Definir limites entre componentes existentes e novo domínio crypto
-- [x] Definir decisões arquiteturais / ADRs
+- [x] Contexto e arquitetura
+- [x] Premissas de autonomia e memória persistente
+- [x] Firebase + GitHub Actions
 
 ## Fase 1 — Token Discovery — CONCLUÍDA
-- [x] Blockchain/data-provider adapter interface
-- [x] DEX discovery adapter interface
-- [x] Detecção de novos contratos/tokens
-- [x] Detecção de novos pools/pares
-- [x] Normalização de token metadata
-- [x] Persistência inicial no Firebase RTDB
-- [x] Deduplicação entre fontes
-- [x] Isolamento de falha por fonte
-- [x] Testes unitários de modelo e adapters
-- [x] Smoke test contra APIs reais
-- [x] Verificação read-after-write no Firebase
-- [x] Execução automatizada a cada 10 minutos
+- [x] Descoberta GeckoTerminal
+- [x] Descoberta complementar DEX Screener
+- [x] Modelo normalizado
+- [x] Deduplicação
+- [x] Isolamento de falha
+- [x] Firebase RTDB
+- [x] Testes e smoke test
+- [x] Workflow automático a cada 10 minutos
 
-Implementação atual:
-- GeckoTerminal: novos pools across supported networks, com paginação pública configurável.
-- DEX Screener: latest token profiles + pair lookup como fonte complementar.
-- Firebase: `discovery/status` e `discovery/tokens/*`.
-- GitHub Actions: testes, smoke test, persistência e read-after-write.
+## Fase 2 — Security Intelligence — CONCLUÍDA
+- [x] `SecurityAnalysis` auditável
+- [x] Honeypot simulation via Honeypot.is
+- [x] Buy/sell/transfer tax analysis
+- [x] Simulation success/failure
+- [x] Holder sell-failure and siphoning indicators
+- [x] Contract source/open-source analysis
+- [x] Proxy/proxy-call analysis
+- [x] Top-holder and top-5 concentration
+- [x] Optional GoPlus Token Security adapter
+- [x] Deterministic Scam/Rug Pull Risk Score
+- [x] Hard security gate `DO_NOT_TRADE`
+- [x] Firebase persistence em `security/tokens/*`
+- [x] Incremental processing: somente tokens ainda não analisados
+- [x] Unit tests
+- [x] Engine integration tests
+- [x] GitHub Actions automático a cada 10 minutos
+- [x] Firebase credential cleanup no runner
 
-Limitação conhecida: nenhum agregador público garante cobertura de literalmente todas as moedas recém-criadas em todas as blockchains. A arquitetura usa múltiplos adapters para permitir adicionar listeners diretos de blockchain, DEXs, launchpads e outros indexadores.
+### Fase 2 — limitações conhecidas
+- Liquidity lock/removal permanece `unknown` quando não há evidência confiável de locker; o sistema não presume segurança.
+- GoPlus é opcional e só é consultado quando `GOPLUS_ACCESS_TOKEN` está configurado.
+- Honeypot/security providers não são auditoria formal de smart contract e podem ter cobertura/latência diferentes por chain.
+- Tokens em chains não suportadas ficam bloqueados (`DO_NOT_TRADE`).
+- Nenhum mecanismo de segurança é considerado infalível.
 
-## Fase 2 — Security Intelligence — PRÓXIMA
-- [ ] Contract inspection
-- [ ] Honeypot detection
-- [ ] Tax/permission analysis
-- [ ] Proxy/upgradeability analysis
-- [ ] Holder concentration
-- [ ] Liquidity lock/removal analysis
-- [ ] Scam/Rug Pull Risk Score
-
-## Fase 3 — Market & On-chain Intelligence
+## Fase 3 — Market & On-chain Intelligence — PRÓXIMA
 - [ ] Price/volume snapshots
 - [ ] Holder growth
 - [ ] Buy/sell pressure
@@ -109,8 +113,6 @@ Pré-condições obrigatórias:
 - [ ] Secrets/signing seguros
 - [ ] Circuit breakers ativos
 - [ ] Autorização explícita do proprietário
-
-Inicialmente limitar a microposição configurada e respeitar integralmente os mínimos, taxas, gas e slippage da plataforma.
 
 ## Fase 9 — Continuous Learning
 - [ ] Trade outcome dataset
