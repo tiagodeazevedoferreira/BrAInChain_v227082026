@@ -17,12 +17,24 @@ class FakeTrades:
         return [TradeObservation(1, "buy", 100, 1, "A", "x")]
 
 
-def test_engine_returns_candidate_without_trade_execution():
-    result = IntelligenceEngine(FakeMarket(), FakeTrades()).analyze("solana", "T", "P")
+def test_engine_returns_candidate_only_when_security_passes():
+    result = IntelligenceEngine(FakeMarket(), FakeTrades()).analyze("solana", "T", "P", "PASS")
     assert result.decision == "CANDIDATE"
     assert result.provider_status["market"] == "ok"
     assert result.provider_status["trades"] == "ok"
     assert result.market_score > 0
+
+
+def test_engine_enforces_security_gate():
+    result = IntelligenceEngine(FakeMarket(), FakeTrades()).analyze("solana", "T", "P", "DO_NOT_TRADE")
+    assert result.decision == "DO_NOT_TRADE"
+    assert "SECURITY_GATE" in result.flags
+
+
+def test_engine_fails_closed_when_security_state_is_unknown():
+    result = IntelligenceEngine(FakeMarket(), FakeTrades()).analyze("solana", "T", "P")
+    assert result.decision == "DO_NOT_TRADE"
+    assert "SECURITY_STATE_UNKNOWN" in result.flags
 
 
 def test_engine_fails_closed_when_market_provider_fails():
@@ -30,6 +42,6 @@ def test_engine_fails_closed_when_market_provider_fails():
         def observe(self, *args):
             raise RuntimeError("down")
 
-    result = IntelligenceEngine(Broken()).analyze("solana", "T", "P")
+    result = IntelligenceEngine(Broken()).analyze("solana", "T", "P", "PASS")
     assert result.decision == "DO_NOT_TRADE"
     assert "MARKET_PROVIDER_FAILURE" in result.flags
