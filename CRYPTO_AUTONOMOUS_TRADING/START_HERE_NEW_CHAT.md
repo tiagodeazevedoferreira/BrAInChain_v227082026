@@ -34,7 +34,7 @@ Criar um sistema independente que descubra novas criptomoedas, analise seguranç
 
 ## PIPELINE
 
-`DISCOVERY → SECURITY → INTELLIGENCE → HISTORICAL DATA → FEATURES → LABELS → ML → VALIDATION → RISK/OPPORTUNITY → BACKTEST → PAPER → EXIT → LEARNING`
+`DISCOVERY → SECURITY → INTELLIGENCE → HISTORICAL DATA → FEATURES → ML → VALIDATION → RISK/OPPORTUNITY → BACKTEST → PAPER → EXIT → LEARNING`
 
 ## PRINCÍPIOS INEGOCIÁVEIS
 
@@ -54,34 +54,41 @@ Criar um sistema independente que descubra novas criptomoedas, analise seguranç
 
 ## ESTADO ATUAL
 
-**Fase 1 — Token Discovery: CONCLUÍDA.**
+**Fase 1 — Token Discovery: CONCLUÍDA E VALIDADA.**
 
 **Fase 2 — Security Intelligence: CONCLUÍDA E VALIDADA.**
 
 **Fase 3 — Market & On-chain Intelligence: IMPLEMENTADA.**
 
-**Fase 4 — Dataset & Machine Learning: IMPLEMENTADA; CI próprio configurado.**
+**Fase 4 — Dataset & Machine Learning: IMPLEMENTADA E VALIDADA.**
 
-`crypto_ml/` possui:
-- contrato `Snapshot` para observações históricas;
-- storage append-only JSONL fora do Firebase;
-- labels forward-looking de 1h/6h/24h/72h;
-- classes +10/+25/+50/+100/+500/+1000% e `RUG_OR_COLLAPSE`;
-- `UNKNOWN` quando o futuro ainda não está disponível;
-- feature engineering baseado somente em informação disponível no instante da decisão;
-- readiness gate;
-- baseline Random Forest balanceado;
-- testes e workflow `crypto-ml.yml`.
+**Fase 5 — Backtesting: IMPLEMENTADA E VALIDADA.**
 
-O baseline não é um modelo de produção. Walk-forward, calibração, OOS, estabilidade e backtesting econômico ainda são obrigatórios antes de qualquer promoção.
+**Fase 6 — Paper Trading: IMPLEMENTADA; validação operacional do workflow pendente.**
+
+### Fase 6 — `crypto_paper/`
+
+Possui:
+- entrada de sinais;
+- execução de compra simulada;
+- fechamento simulado;
+- posição/ledger;
+- PnL realizado e não realizado;
+- fees e slippage;
+- security/liquidity/opportunity gates;
+- max positions/exposure;
+- daily loss e consecutive-loss circuit breakers;
+- logging e monitoramento;
+- histórico fora do Firebase;
+- nenhuma capacidade de assinar ou enviar transações reais.
+
+O workflow é `.github/workflows/crypto-paper.yml`.
 
 ## PRÓXIMA AÇÃO
 
-**Fase 5 — Backtesting temporal/event-driven.**
+Após a validação operacional da Fase 6, implementar **Fase 7 — Exit Intelligence**.
 
-Implementar simulação realista de entrada/saída com fees, gas, slippage, latency, failed transactions, liquidity constraints e métricas econômicas/risk-adjusted.
-
-Não implementar compra real.
+Não implementar compra real antes de satisfazer as pré-condições da Fase 8 e obter autorização explícita.
 
 ## CRITÉRIO DE CONCLUSÃO
 
