@@ -2,125 +2,69 @@
 
 ## Status
 
-**Fase 8 — Restricted Live Micro Trading: safety boundary implementada; validação operacional do workflow pendente.**
+**Fase 9 — Continuous Learning implementada; validação operacional do workflow pendente.**
 
 ## Regra de governança
 
 Ao concluir qualquer etapa, atualizar `CRYPTO_AUTONOMOUS_TRADING/` com o estado real, decisões, testes, limitações e próximo passo. Esta pasta é a memória técnica persistente para continuidade em novos chats.
 
-## Fases concluídas
+## Fases concluídas e validadas
 
 ### Fase 0 — Contexto e arquitetura — CONCLUÍDA
-- [x] Contexto e arquitetura
-- [x] Autonomia e memória persistente
-- [x] Firebase + GitHub Actions
-
 ### Fase 1 — Token Discovery — CONCLUÍDA E VALIDADA
-- [x] GeckoTerminal / DEX Screener
-- [x] Normalização / deduplicação
-- [x] Tolerância a falhas
-- [x] Firebase RTDB
-- [x] Testes / smoke test / workflow
-
 ### Fase 2 — Security Intelligence — CONCLUÍDA E VALIDADA
-- [x] Honeypot, taxes, simulations
-- [x] Contract/source/proxy analysis
-- [x] Holder analysis
-- [x] Deterministic risk score
-- [x] Hard `DO_NOT_TRADE`
-- [x] Firebase incremental persistence
-- [x] CI validado
-
 ### Fase 3 — Market & On-chain Intelligence — CONCLUÍDA E VALIDADA
-- [x] Price/volume
-- [x] Buy/sell pressure
-- [x] Momentum/acceleration
-- [x] Liquidity/turnover
-- [x] Trade wallet activity
-- [x] Whale concentration proxy
-- [x] Smart-money proxy
-- [x] Manipulation heuristics
-- [x] Fail-closed
-- [x] Bounded Firebase state
-
 ### Fase 4 — Dataset & Machine Learning — CONCLUÍDA E VALIDADA
-- [x] ML contracts
-- [x] Historical JSONL outside Firebase
-- [x] Forward multi-horizon labels
-- [x] Growth/crash labels
-- [x] Time-local features
-- [x] Readiness gate
-- [x] Research baseline
-- [x] Tests / CI
-
 ### Fase 5 — Backtesting — CONCLUÍDA E VALIDADA
-- [x] Event-driven backtester
-- [x] Fees / gas / slippage
-- [x] Security / score / liquidity gates
-- [x] Trade journal
-- [x] PnL / metrics
-- [x] Tests / CI
-
 ### Fase 6 — Paper Trading — CONCLUÍDA E VALIDADA
-- [x] Simulated execution
-- [x] Position ledger / PnL
-- [x] Fees / slippage
-- [x] Security / liquidity / opportunity gates
-- [x] Exposure / position limits
-- [x] Daily / consecutive loss breakers
-- [x] Monitoring / logging
-- [x] Historical storage outside Firebase
-- [x] No signing or live transport
-- [x] CI validated
-
 ### Fase 7 — Exit Intelligence — CONCLUÍDA E VALIDADA
-- [x] Trailing stop
-- [x] Dynamic take profit + reversal confirmation
-- [x] Momentum / volume reversal
-- [x] Whale exit contract
-- [x] Liquidity deterioration
-- [x] Crash protection
-- [x] Time stop
-- [x] Exit score
-- [x] Peak capture
-- [x] Tests / CI validated
 
-## Fase 8 — Restricted Live Micro Trading — IMPLEMENTADA; CI PENDENTE
-
-### Safety boundary
-- [x] `LiveConfig`
-- [x] Explicit `TRADING_MODE=live` gate
-- [x] `LIVE_TRADING_ENABLED` gate
-- [x] Explicit owner authorization gate
-- [x] Backtest evidence gate
-- [x] Out-of-sample evidence gate
-- [x] Paper evidence gate
-- [x] Security tests gate
-- [x] Failure tests gate
-- [x] Secure signing/secret configuration gate
-- [x] Position/exposure limits
-- [x] Gas/slippage limits
-- [x] Daily/consecutive loss limits
-- [x] Fail-closed `LiveExecutor`
-- [x] CI workflow with `workflow_dispatch`
-- [ ] Operational CI validation
-- [ ] Approved venue adapter
+## Fase 8 — Restricted Live Micro Trading — SAFETY BOUNDARY IMPLEMENTADA E VALIDADA
+- [x] Explicit live mode/owner/evidence gates
+- [x] Position/exposure/gas/slippage/loss limits
+- [x] Fail-closed live executor
+- [x] No approved venue adapter
+- [x] CI validated
 - [ ] Actual live authorization
+- [ ] Actual order execution
 
-### Important
-A CI-green Phase 8 only proves that the safety boundary works. It does not prove profitability and does not authorize real-money trading.
+## Fase 9 — Continuous Learning — IMPLEMENTADA; CI PENDENTE
 
-Before an approved venue adapter is implemented, the project must produce empirical out-of-sample and sustained paper-trading evidence. No live order is sent by the current code.
+### Dataset de resultados
+- [x] Outcome schema
+- [x] Model/feature version tracking
+- [x] Entry/peak/exit/return/drawdown/peak-capture tracking
+- [x] Market regime field
+- [x] Append-only local learning journal
+- [x] No unbounded Firebase historical storage
 
-## Fase 9 — Continuous Learning
-- [ ] Trade outcome dataset
-- [ ] Retraining pipeline
-- [ ] Model comparison
-- [ ] Champion/challenger
-- [ ] Model approval gate
-- [ ] Rollback
-- [ ] Strategy/threshold optimization
-- [ ] Regime monitoring
+### Validação temporal
+- [x] Chronological train/validation/test split
+- [x] No random split
+- [x] Embargo helper for forward-labelled samples
+
+### Model governance
+- [x] Candidate evaluation gate
+- [x] Minimum sample gate
+- [x] Balanced accuracy gate
+- [x] Positive-return gate
+- [x] Drawdown ceiling
+- [x] Champion/challenger comparison
+- [x] Strict promotion requirement
+- [x] No automatic live promotion
+- [ ] Production rollback artifact
+- [ ] Full retraining orchestration
+- [ ] Regime-specific calibration
+
+### CI
+- [x] Unit tests
+- [x] `Crypto Continuous Learning` workflow
+- [x] `workflow_dispatch`
+- [ ] Operational CI validation
+
+## Próxima etapa após validar a Fase 9
+
+Executar aprendizado contínuo com dados reais do Paper Trading, construir retraining/calibration sobre dataset suficientemente grande e estabelecer evidência out-of-sample. Depois disso, podemos retornar à camada de execução e implementar, de forma isolada, um venue adapter para compra/venda real.
 
 ## Regras de segurança
 
