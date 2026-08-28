@@ -40,11 +40,18 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -e ".[firebase]"
+      - name: Validate Firebase secret is available
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "FIREBASE_SERVICE_ACCOUNT_JSON secret is missing or unavailable to this workflow."
+            exit 1
+          fi
       - name: Write Firebase service account
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
-          test -n "$FIREBASE_SERVICE_ACCOUNT_JSON"
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > firebase-service-account.json
           chmod 600 firebase-service-account.json
       - name: Run market intelligence
