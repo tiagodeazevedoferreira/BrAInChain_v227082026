@@ -15,6 +15,14 @@ def test_temporal_split_has_no_reordering():
     assert [r["observed_at"] for r in test] == ["2026-01-04"]
 
 
+def test_temporal_split_small_dataset_boundaries():
+    rows = [{"observed_at": str(i)} for i in range(4)]
+    train, val, test = time_split(rows)
+    assert len(train) == 2
+    assert len(val) == 1
+    assert len(test) == 1
+
+
 def test_embargo():
     rows = [{"observed_at": str(i)} for i in range(5)]
     assert len(purge_overlapping_labels(rows, 1)) == 4
