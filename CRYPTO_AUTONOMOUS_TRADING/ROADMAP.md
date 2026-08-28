@@ -13,7 +13,7 @@ Ao concluir qualquer etapa, atualizar `CRYPTO_AUTONOMOUS_TRADING/` com o estado 
 ### Fase 0 — Contexto e arquitetura — CONCLUÍDA
 ### Fase 1 — Token Discovery — CONCLUÍDA E VALIDADA
 ### Fase 2 — Security Intelligence — CONCLUÍDA E VALIDADA
-### Fase 3 — Market & On-chain Intelligence — CONCLUÍDA E VALIDADA
+### Fase 3 — Market & On-chain Intelligence — CONCLUÍDA E VALIDADA; CI RECENTEMENTE CORRIGIDA
 ### Fase 4 — Dataset & Machine Learning — CONCLUÍDA E VALIDADA
 ### Fase 5 — Backtesting — CONCLUÍDA E VALIDADA
 ### Fase 6 — Paper Trading — CONCLUÍDA E VALIDADA
@@ -42,6 +42,7 @@ Ao concluir qualquer etapa, atualizar `CRYPTO_AUTONOMOUS_TRADING/` com o estado 
 - [x] Chronological train/validation/test split
 - [x] No random split
 - [x] Embargo helper for forward-labelled samples
+- [x] Boundary rounding corrected for small datasets
 
 ### Model governance
 - [x] Candidate evaluation gate
