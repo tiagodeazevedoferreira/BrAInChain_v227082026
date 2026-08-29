@@ -1,0 +1,18 @@
+{
+  "generated_at": null,
+  "collection": {
+    "pipeline_status": "UNKNOWN",
+    "firebase_status": "UNKNOWN",
+    "observations": 0,
+    "valid_observations": null,
+    "rejected_observations": null,
+    "tokens_discovered": null,
+    "growth_24h": null,
+    "last_collection_at": null,
+    "age_hours": null,
+    "stale": true
+  },
+  "metrics": {},
+  "readiness": {"gates": []},
+  "source": {}
+}
