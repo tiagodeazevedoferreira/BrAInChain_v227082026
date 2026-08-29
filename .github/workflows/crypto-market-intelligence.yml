@@ -13,6 +13,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: crypto-market-intelligence
+  cancel-in-progress: false
+
+env:
+  FIREBASE_DATABASE_URL: https://brainchainv227082026-default-rtdb.firebaseio.com
+  MARKET_MAX_TOKENS: "25"
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,6 +39,7 @@ jobs:
     needs: test
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: crypto_market
@@ -40,26 +49,44 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -e ".[firebase]"
-      - name: Validate Firebase secret is available
+
+      - name: Validate Firebase secret
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
-          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
-            echo "FIREBASE_SERVICE_ACCOUNT_JSON secret is missing or unavailable to this workflow."
+          set -euo pipefail
+          test -n "$FIREBASE_SERVICE_ACCOUNT_JSON" || {
+            echo "ERROR: GitHub Actions secret FIREBASE_SERVICE_ACCOUNT_JSON is empty or unavailable to this workflow."
+            echo "Create it under repository Settings > Secrets and variables > Actions > Repository secrets."
             exit 1
-          fi
+          }
+          python - <<'PY'
+          import json, os
+          raw = os.environ["FIREBASE_SERVICE_ACCOUNT_JSON"]
+          data = json.loads(raw)
+          required = {"type", "project_id", "private_key", "client_email"}
+          missing = sorted(required - data.keys())
+          if missing:
+              raise SystemExit(f"ERROR: Firebase service-account JSON is missing fields: {', '.join(missing)}")
+          if data.get("type") != "service_account":
+              raise SystemExit("ERROR: FIREBASE_SERVICE_ACCOUNT_JSON is not a service-account credential.")
+          print("Firebase service-account secret: present and structurally valid")
+          PY
+
       - name: Write Firebase service account
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
+          set -euo pipefail
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > firebase-service-account.json
           chmod 600 firebase-service-account.json
+          test -s firebase-service-account.json
+
       - name: Run market intelligence
         env:
-          FIREBASE_DATABASE_URL: https://brainchainv227082026-default-rtdb.firebaseio.com
           FIREBASE_SERVICE_ACCOUNT_FILE: ${{ github.workspace }}/crypto_market/firebase-service-account.json
-          MARKET_MAX_TOKENS: "25"
         run: python -m market.main --firebase
+
       - name: Remove credentials
         if: always()
         run: rm -f firebase-service-account.json
