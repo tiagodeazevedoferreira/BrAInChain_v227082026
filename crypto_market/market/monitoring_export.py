@@ -35,14 +35,28 @@ def main():
     age_hours = None
     if last_run:
         try:
-            age_hours = max(0, (now - datetime.fromisoformat(last_run.replace("Z", "+00:00"))).total_seconds() / 3600)
+            age_hours = max(
+                0,
+                (
+                    now
+                    - datetime.fromisoformat(last_run.replace("Z", "+00:00"))
+                ).total_seconds()
+                / 3600,
+            )
         except ValueError:
             pass
 
     payload = {
         "generated_at": now.isoformat(),
         "collection": {
-            "pipeline_status": "HEALTHY" if last_run and age_hours is not None and age_hours <= 6 and status.get("error_count", 0) == 0 else "UNKNOWN",
+            "pipeline_status": (
+                "HEALTHY"
+                if last_run
+                and age_hours is not None
+                and age_hours <= 6
+                and status.get("error_count", 0) == 0
+                else "UNKNOWN"
+            ),
             "firebase_status": "CONNECTED",
             "observations": len(tokens),
             "valid_observations": len(tokens),
@@ -62,9 +76,14 @@ def main():
         },
     }
 
-    output = Path(__file__).resolve().parents[2] / "ML_MONITORING" / "data" / "ml-monitoring.json"
+    # GitHub Pages deploys ML_MONITORING/ as the site root and explicitly
+    # copies this canonical root-level feed into _site/data/. Keeping a
+    # single source of truth prevents the PWA from serving a stale feed.
+    output = Path(__file__).resolve().parents[2] / "data" / "ml-monitoring.json"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(payload["collection"], ensure_ascii=False, indent=2))
 
 
