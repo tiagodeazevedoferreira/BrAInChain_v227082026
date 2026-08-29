@@ -11,7 +11,7 @@ on:
       - "crypto_discovery/**"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: crypto-market-intelligence
@@ -86,6 +86,25 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT_FILE: ${{ github.workspace }}/crypto_market/firebase-service-account.json
         run: python -m market.main --firebase
+
+      - name: Export monitoring feed
+        env:
+          FIREBASE_SERVICE_ACCOUNT_FILE: ${{ github.workspace }}/crypto_market/firebase-service-account.json
+        run: python -m market.monitoring_export
+
+      - name: Publish monitoring feed
+        working-directory: .
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ML_MONITORING/data/ml-monitoring.json
+          if git diff --cached --quiet; then
+            echo "Monitoring feed unchanged; nothing to publish."
+          else
+            git commit -m "chore: update ML monitoring feed"
+            git push
+          fi
 
       - name: Remove credentials
         if: always()
