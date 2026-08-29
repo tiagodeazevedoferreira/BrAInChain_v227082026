@@ -1,18 +1,24 @@
 {
-  "generated_at": null,
+  "generated_at": "2026-08-29T19:19:53.206075+00:00",
   "collection": {
-    "pipeline_status": "UNKNOWN",
-    "firebase_status": "UNKNOWN",
-    "observations": 0,
-    "valid_observations": null,
-    "rejected_observations": null,
-    "tokens_discovered": null,
-    "growth_24h": null,
-    "last_collection_at": null,
-    "age_hours": null,
-    "stale": true
+    "pipeline_status": "HEALTHY",
+    "firebase_status": "CONNECTED",
+    "observations": 150,
+    "valid_observations": 150,
+    "rejected_observations": 0,
+    "tokens_discovered": 213,
+    "growth_24h": "—",
+    "last_collection_at": "2026-08-29T19:19:52.542316+00:00",
+    "age_hours": 0.0,
+    "stale": false
   },
   "metrics": {},
-  "readiness": {"gates": []},
-  "source": {}
+  "readiness": {
+    "gates": []
+  },
+  "source": {
+    "market_analysis_count": 25,
+    "market_error_count": 0,
+    "storage_policy": "latest_state_only"
+  }
 }
