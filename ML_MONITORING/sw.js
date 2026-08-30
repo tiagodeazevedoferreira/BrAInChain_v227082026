@@ -1,4 +1,4 @@
-const CACHE = 'brainchain-monitor-v3';
+const CACHE = 'brainchain-monitor-v4';
 const STATIC = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
@@ -18,13 +18,11 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Monitoring data must always come from the latest published feed.
   if (url.pathname.endsWith('/data/ml-monitoring.json')) {
     event.respondWith(fetch(event.request, { cache: 'no-store' }));
     return;
   }
 
-  // HTML must also prefer the network so GitHub Pages updates are visible promptly.
   if (event.request.mode === 'navigate' || url.pathname.endsWith('/index.html')) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' })
