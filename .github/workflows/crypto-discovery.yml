@@ -68,14 +68,14 @@ jobs:
 
       - name: Create temporary Firebase credential
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
           set -euo pipefail
-          test -n "$FIREBASE_SERVICE_ACCOUNT" || {
-            echo "ERROR: FIREBASE_SERVICE_ACCOUNT secret is not configured."
+          test -n "$FIREBASE_SERVICE_ACCOUNT_JSON" || {
+            echo "ERROR: FIREBASE_SERVICE_ACCOUNT_JSON secret is not configured."
             exit 1
           }
-          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-service-account.json"
           chmod 600 "$RUNNER_TEMP/firebase-service-account.json"
 
       - name: Discover and persist
