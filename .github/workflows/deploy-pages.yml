@@ -7,6 +7,10 @@ on:
       - "ML_MONITORING/**"
       - "data/ml-monitoring.json"
       - ".github/workflows/deploy-pages.yml"
+  workflow_run:
+    workflows: ["Crypto Market & On-chain Intelligence"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -16,20 +20,26 @@ permissions:
 
 concurrency:
   group: github-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
+      - name: Checkout exact producer commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
-      - name: Validate dashboard files
+      - name: Validate dashboard files and authoritative feed
         run: |
+          set -euo pipefail
           test -f ML_MONITORING/index.html
           test -f ML_MONITORING/manifest.webmanifest
           test -f ML_MONITORING/sw.js
@@ -38,8 +48,23 @@ jobs:
           import json
           from pathlib import Path
           json.loads(Path('ML_MONITORING/manifest.webmanifest').read_text())
-          json.loads(Path('data/ml-monitoring.json').read_text())
+          feed = json.loads(Path('data/ml-monitoring.json').read_text())
+          c = feed.get('collection')
+          if not isinstance(c, dict):
+              raise SystemExit('ERROR: monitoring feed has no collection object')
+          required = ('pipeline_status', 'firebase_status', 'observations', 'tokens_discovered', 'last_collection_at')
+          missing = [k for k in required if k not in c]
+          if missing:
+              raise SystemExit(f'ERROR: monitoring feed missing fields: {missing}')
           print('DASHBOARD_STATIC_VALIDATION=OK')
+          print(f"FEED_GENERATED_AT={feed.get('generated_at')}")
+          print(f"FEED_LAST_COLLECTION={c.get('last_collection_at')}")
+          print(f"FEED_OBSERVATIONS={c.get('observations')}")
+          print(f"FEED_VALID={c.get('valid_observations')}")
+          print(f"FEED_REJECTED={c.get('rejected_observations')}")
+          print(f"FEED_TOKENS_DISCOVERED={c.get('tokens_discovered')}")
+          print(f"FEED_PIPELINE={c.get('pipeline_status')}")
+          print(f"FEED_FIREBASE={c.get('firebase_status')}")
           PY
 
       - name: Configure Pages
@@ -47,12 +72,16 @@ jobs:
 
       - name: Prepare Pages artifact
         run: |
+          set -euo pipefail
           rm -rf _site
           mkdir -p _site
           cp -R ML_MONITORING/. _site/
           mkdir -p _site/data
           cp data/ml-monitoring.json _site/data/ml-monitoring.json
           touch _site/.nojekyll
+          test -f _site/data/ml-monitoring.json
+          cmp -s data/ml-monitoring.json _site/data/ml-monitoring.json
+          echo "PAGES_FEED_COPY_VALID=OK"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
