@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-09-18T09:13:12.555560+00:00",
+  "generated_at": "2026-09-18T13:40:46.086220+00:00",
   "collection": {
     "pipeline_status": "HEALTHY",
     "firebase_status": "CONNECTED",
-    "observations": 3330,
-    "valid_observations": 3330,
+    "observations": 3355,
+    "valid_observations": 3355,
     "rejected_observations": 0,
-    "tokens_discovered": 3693,
+    "tokens_discovered": 3721,
     "growth_24h": "—",
-    "last_collection_at": "2026-09-18T09:13:11.124808+00:00",
+    "last_collection_at": "2026-09-18T13:40:44.796618+00:00",
     "age_hours": 0.0,
     "stale": false
   },
